@@ -1,13 +1,14 @@
-import { useState } from 'react'
+import { Routes, Route } from "react-router-dom";
+import LoginPage from "./pages/auth/Login/Page.tsx";
+import LandingPage from "./pages/frontend/Landing/Page.tsx";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <h2 className="text-primary">Hello</h2>
-    </>
-  )
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<LoginPage />} />
+    </Routes>
+  );
 }
 
-export default App
+export default App;

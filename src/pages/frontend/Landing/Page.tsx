@@ -1,6 +1,9 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function LandingPage() {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen relative">
       <section
@@ -19,9 +22,10 @@ export default function LandingPage() {
           </p>
           <div className="flex space-x-2">
 
-          <button className="bg-[#f48f21] text-black px-8 py-4 cursor-pointer rounded-xl font-semibold shadow hover:bg-amber-300 transition">
+          <button onClick={() => navigate("/login")} className="bg-[#f48f21] text-black px-8 py-4 cursor-pointer rounded-xl font-semibold shadow hover:bg-amber-300 transition">
             Get Started
           </button>
+          {/* <Link to="/login" className="text-white">Login</Link> */}
           {/* <button className="bg-[#122d52] text-white px-8 py-4 cursor-pointer rounded-xl font-semibold shadow hover:bg-[#122d52] transition">
             Login
           </button> */}
