@@ -12,77 +12,16 @@ import {
   ClipboardList,
 } from "lucide-react";
 
+import Sidebar from "./components/Sidebar";
+import Header from "./components/Header";
+
 const DashboardPage = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [profileOpen, setProfileOpen] = useState(false);
 
   return (
     <div className="min-h-screen flex bg-gray-100">
-      {/* Sidebar */}
-      <div
-        className={`${
-          sidebarOpen ? "w-64" : "w-20"
-        } bg-white shadow-lg transition-all duration-300 flex flex-col`}
-      >
-        <div className="flex items-center justify-between p-4 border-b">
-          <h1 className={`font-bold text-lg ${!sidebarOpen && "hidden"}`}>
-            Gym Member
-          </h1>
-          <button onClick={() => setSidebarOpen(!sidebarOpen)}>
-            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-4">
-          <SidebarItem
-            icon={<LayoutDashboard size={20} />}
-            label="Dashboard"
-            open={sidebarOpen}
-          />
-          <SidebarItem
-            icon={<Dumbbell size={20} />}
-            label="Workout Plan"
-            open={sidebarOpen}
-          />
-          <SidebarItem
-            icon={<Utensils size={20} />}
-            label="Diet Plan"
-            open={sidebarOpen}
-          />
-          <SidebarItem
-            icon={<Bell size={20} />}
-            label="Announcements"
-            open={sidebarOpen}
-          />
-        </nav>
-      </div>
-
-      {/* Main Section */}
+      <Sidebar />
       <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="bg-white shadow-sm p-4 flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Dashboard</h2>
-
-          <div className="relative">
-            <button
-              onClick={() => setProfileOpen(!profileOpen)}
-              className="flex items-center gap-2"
-            >
-              <div className="w-9 h-9 bg-blue-500 text-white rounded-full flex items-center justify-center">
-                U
-              </div>
-              <span className="hidden md:block font-medium">Ummer</span>
-            </button>
-
-            {profileOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-md border">
-                <DropdownItem icon={<User size={16} />} label="Edit Profile" />
-                <DropdownItem icon={<KeyRound size={16} />} label="Change Password" />
-                <DropdownItem icon={<LogOut size={16} />} label="Logout" />
-              </div>
-            )}
-          </div>
-        </header>
+        <Header />
 
         {/* Content */}
         <main className="p-6">
@@ -147,19 +86,9 @@ const DashboardPage = () => {
   );
 };
 
-const SidebarItem = ({ icon, label, open }) => (
-  <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 cursor-pointer">
-    {icon}
-    {open && <span className="text-sm font-medium">{label}</span>}
-  </div>
-);
 
-const DropdownItem = ({ icon, label }) => (
-  <div className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm">
-    {icon}
-    {label}
-  </div>
-);
+
+
 
 const DashboardCard = ({ title, description, icon, bg, iconColor }) => (
   <div className="bg-white rounded-2xl shadow-md p-5 hover:shadow-lg transition">
