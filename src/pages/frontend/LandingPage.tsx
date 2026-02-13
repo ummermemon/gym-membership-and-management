@@ -7,7 +7,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen relative">
       <section
-        className="min-h-screen flex items-center bg-cover bg-center"
+        className="min-h-screen h-full w-full flex items-center bg-cover bg-center"
         style={{ backgroundImage: "url('/assets/images/hero-section/2.jpg')" }}
       >
         <div className="absolute inset-0 bg-black/60"></div>

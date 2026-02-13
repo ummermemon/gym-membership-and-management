@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,8 +36,10 @@ function LoginPage() {
       localStorage.setItem("token", data.token);
 
       alert("Login Successful!");
+      navigate('/member/dashboard')
 
       // Redirect (example)
+      
       
 
     } catch (error) {
