@@ -80,7 +80,6 @@ class AuthController extends Controller
     }
     
     public function getUser(Request $request){
-        // return 'this';
         return response()->json([
             'status' => true,
             'data' => $request->user()
