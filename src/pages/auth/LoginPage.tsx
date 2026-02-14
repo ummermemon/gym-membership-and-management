@@ -34,9 +34,7 @@ function LoginPage() {
 
       // Save token
       localStorage.setItem("token", data.token);
-
-      alert("Login Successful!");
-      navigate('/member/dashboard')
+      navigate('/member/dashboard');
 
       // Redirect (example)
       

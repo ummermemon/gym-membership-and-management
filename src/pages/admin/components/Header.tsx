@@ -59,11 +59,6 @@ function Header() {
                         onClick={() => setProfileOpen(!profileOpen)}
                         className="flex items-center gap-2"
                     >
-                        <img src={
-                          user?.profile_img
-                            ? `${API_BASE_URL}/storage/users/profile_images/${user.profile_img}`
-                            : "/profile.png" 
-                        } className="h-10"></img>
                         <div className="w-9 h-9 bg-blue-500 text-white rounded-full flex items-center justify-center">
                             U
                         </div>
