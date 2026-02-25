@@ -13,9 +13,11 @@ const AuthenticationProtectedRoute = ({ children }) => {
 
       localStorage.removeItem("token");
       localStorage.removeItem("role");
+      localStorage.clear()
 
       sessionStorage.removeItem("token");
       sessionStorage.removeItem("role");
+      sessionStorage.clear()
       addToast({
         title: "Error",
         description: "Something went wrong",

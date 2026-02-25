@@ -79,8 +79,18 @@ export default function LoginPage() {
       <div className=" min-h-screen flex items-center justify-center">
         <div className="w-fit h-fit">
           <Card className="p-5">
-            <CardHeader>
-              <Image src="assets/images/logo/erased-horizontal.png" className="h-30" />
+            <CardHeader className="w-full flex justify-center">
+              {/* Light Mode Logo */}
+              <Image
+                src="assets/images/logo/logo/black/erased.png"
+                className="h-30 block dark:hidden"
+              />
+
+              {/* Dark Mode Logo */}
+              <Image
+                src="assets/images/logo/logo/white/erased.png"
+                className="h-30 hidden dark:block"
+              />
             </CardHeader>
             <CardBody>
               <form onSubmit={handleSubmit} >
@@ -111,7 +121,7 @@ export default function LoginPage() {
                       onChange={(e) => setRememberMe(e.target.checked)}><div className="text-sm text-gray-600">Remember Me</div></Checkbox>
                     <Link to={"/forgot-password"} className="text-gray-600 text-sm">Forgot Password?</Link>
                   </div>
-                  <Button type="submit" color="primary" variant="shadow" size="md">
+                  <Button type="submit" color="warning" variant="shadow" size="md">
                     Login
                   </Button>
                 </div>

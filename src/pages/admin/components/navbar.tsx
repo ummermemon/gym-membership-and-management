@@ -22,7 +22,7 @@ import {
     ModalBody,
     ModalFooter
 } from "@heroui/modal";
-import { Skeleton } from "@heroui/react";
+import { Divider, Skeleton } from "@heroui/react";
 
 import { Input } from "@heroui/input";
 import { Checkbox } from "@heroui/checkbox";
@@ -233,76 +233,26 @@ export default function AdminNavbarComponent() {
 
     return (
         <>
-            <Navbar className="border-b py-5" maxWidth="full">
+            <Navbar className="py-5" maxWidth="full">
                 <NavbarBrand className="justify-start">
-                    <Image src="/assets/images/logo/erased-horizontal.png" className="h-20" />
+                    <Image
+                        src="/assets/images/logo/logo/black/erased.png"
+                        className="h-20 block dark:hidden"
+                    />
+                    <Image
+                        src="/assets/images/logo/logo/white/erased.png"
+                        className="h-20 hidden dark:block"
+                    />
                 </NavbarBrand>
                 <NavbarContent className="hidden sm:flex gap-4" justify="center" >
                     <NavbarItem isActive>
-                        <Link aria-current="page" href="#">
+                        <Link href="#">
                             Dashboard
                         </Link>
                     </NavbarItem>
-                    <Dropdown>
-                        <NavbarItem>
-                            <DropdownTrigger>
-                                <Button
-                                    disableRipple
-                                    className="p-0 bg-transparent data-[hover=true]:bg-transparent"
-                                    endContent={<ChevronDown />}
-                                    radius="sm"
-                                    variant="light"
-                                >
-                                    Workout Plan
-                                </Button>
-                            </DropdownTrigger>
-                        </NavbarItem>
-                        <DropdownMenu
-                            aria-label="ACME features"
-                            itemClasses={{
-                                base: "gap-4",
-                            }}
-                        >
-                            <DropdownItem
-                                key="autoscaling"
-                                description="ACME scales apps based on demand and load"
-                                startContent={<ChevronDown />}
-                            >
-                                Diet Plan
-                            </DropdownItem>
-                            <DropdownItem
-                                key="usage_metrics"
-                                description="Real-time metrics to debug issues"
-                                startContent={<ChevronDown />}
-                            >
-                                Usage Metrics
-                            </DropdownItem>
-                            <DropdownItem
-                                key="production_ready"
-                                description="ACME runs on ACME, join us at web scale"
-                                startContent={<ChevronDown />}
-                            >
-                                Production Ready
-                            </DropdownItem>
-                            <DropdownItem
-                                key="99_uptime"
-                                description="High availability and uptime guarantees"
-                                startContent={<ChevronDown />}
-                            >
-                                +99% Uptime
-                            </DropdownItem>
-                            <DropdownItem
-                                key="supreme_support"
-                                description="Support team ready to respond"
-                                startContent={<ChevronDown />}
-                            >
-                                +Supreme Support
-                            </DropdownItem>
-                        </DropdownMenu>
-                    </Dropdown>
-                    <NavbarItem>
+                    <NavbarItem >
                         <Link color="foreground" href="#">
-                            Diet Plan
+                            Users
                         </Link>
                     </NavbarItem>
                 </NavbarContent>
@@ -380,6 +330,7 @@ export default function AdminNavbarComponent() {
                     </Dropdown>
                 </NavbarContent>
             </Navbar>
+            <Divider />
             <Modal isOpen={isOpen} placement="top-center" onOpenChange={onOpenChange}>
                 <ModalContent>
                     {(onClose) => (
@@ -396,7 +347,7 @@ export default function AdminNavbarComponent() {
 
                                                 <Avatar
                                                     size="lg"
-                                                    className="w-28 h-28 text-large border-4 border-primary/30 shadow-lg transition-all duration-300 group-hover:scale-105"
+                                                    className="w-28 h-28 text-large border-4 border-warning shadow-lg transition-all duration-300 group-hover:scale-105"
                                                     src={
                                                         previewImage
                                                             ? previewImage
@@ -469,7 +420,7 @@ export default function AdminNavbarComponent() {
                                     <Button color="danger" variant="flat" onPress={onClose}>
                                         Close
                                     </Button>
-                                    <Button type="submit" color="primary" >
+                                    <Button type="submit" color="warning" >
                                         Update
                                     </Button>
                                 </ModalFooter>
