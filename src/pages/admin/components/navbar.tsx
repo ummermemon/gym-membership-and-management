@@ -14,7 +14,7 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { Image } from "@heroui/image";
 import { useEffect, useState } from "react";
 import { User } from "@heroui/user";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
     Modal,
     ModalContent,
@@ -32,7 +32,8 @@ import { addToast, ToastProvider } from "@heroui/toast";
 
 
 
-export default function AdminNavbarComponent() {
+export default function AdminNavbarComponent(currentPage) {
+    const location = useLocation();
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const {
         isOpen: isChangePasswordOpen,
@@ -149,7 +150,7 @@ export default function AdminNavbarComponent() {
                     title: "Edit Profile",
                     description: "Your profile updated successfully",
                     variant: "flat",
-                    color: "primary",
+                    color: "warning",
                 });
                 setPreviewImage(null);
                 await fetchUser();
@@ -215,7 +216,7 @@ export default function AdminNavbarComponent() {
             addToast({
                 title: "Success",
                 description: "Password changed successfully",
-                color: "primary",
+                color: "warning",
             });
 
             setPasswordData({
@@ -246,13 +247,32 @@ export default function AdminNavbarComponent() {
                 </NavbarBrand>
                 <NavbarContent className="hidden sm:flex gap-4" justify="center" >
                     <NavbarItem isActive>
-                        <Link href="#">
-                            Dashboard
+                        <NavbarItem isActive={location.pathname === "/admin/dashboard"}>
+                            <Link
+                                as="button"
+                                color={location.pathname === "/admin/dashboard" ? "warning" : "foreground"}
+                                onClick={() => navigate("/admin/dashboard")}
+                            >
+                                Dashboard
+                            </Link>
+                        </NavbarItem>
+                    </NavbarItem>
+                    <NavbarItem isActive={location.pathname === "/admin/users"}>
+                        <Link
+                            as="button"
+                            color={location.pathname === "/admin/users" ? "warning" : "foreground"}
+                            onClick={() => navigate("/admin/users")}
+                        >
+                            Users
                         </Link>
                     </NavbarItem>
-                    <NavbarItem >
-                        <Link color="foreground" href="#">
-                            Users
+                    <NavbarItem isActive={location.pathname === "/admin/membership-plans"}>
+                        <Link
+                            as="button"
+                            color={location.pathname === "/admin/membership-plans" ? "warning" : "foreground"}
+                            onClick={() => navigate("/admin/membership-plans")}
+                        >
+                            Membership Plans
                         </Link>
                     </NavbarItem>
                 </NavbarContent>
@@ -469,7 +489,7 @@ export default function AdminNavbarComponent() {
                                     <Button color="danger" variant="flat" onPress={onClose}>
                                         Close
                                     </Button>
-                                    <Button type="submit" color="primary">
+                                    <Button type="submit" color="warning">
                                         Update Password
                                     </Button>
                                 </ModalFooter>

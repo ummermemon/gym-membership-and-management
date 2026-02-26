@@ -15,7 +15,6 @@ import {
 import { Chip } from "@heroui/chip";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
-import { User } from "@heroui/user";
 import { Pagination } from "@heroui/pagination";
 import { useState, useMemo, useCallback } from "react";
 import { ChevronDown, Delete, Edit, Eye, EyeClosed, PencilLine, Plus, Search, Trash2, } from "lucide-react";
@@ -33,26 +32,27 @@ import {
 import { Checkbox } from "@heroui/checkbox";
 import { Link } from "@heroui/link";
 import { addToast } from "@heroui/toast";
+import { NumberInput } from "@heroui/react";
 
 /* -------------------- COLUMNS -------------------- */
 
 export const columns = [
     { name: "ID", uid: "id", sortable: true },
     { name: "NAME", uid: "name", sortable: true },
-    { name: "EMAIL", uid: "email" },
-    { name: "REGISTERED ON", uid: "registered_at" },
+    { name: "DURATION", uid: "duration", sortable: true },
+    { name: "STATUS", uid: "status", sortable: true },
+    { name: "PRICE", uid: "price", sortable: true },
     { name: "ACTIONS", uid: "actions" },
 ];
-
-/* -------------------- USERS (Fixed) -------------------- */
 
 
 
 
 const INITIAL_VISIBLE_COLUMNS = [
     "name",
-    "email",
-    "registered_at",
+    "duration",
+    "status",
+    "price",
     "actions"
 ];
 export const EyeIcon = (props) => {
@@ -175,11 +175,10 @@ export const EditIcon = (props) => {
         </svg>
     );
 };
-export default function UsersListComponent() {
-    const [users, setUsers] = useState([]);
+export default function MembershipPlansListComponent() {
+    const [membershipPlans, setMembershipPlans] = useState([]);
     const [filterValue, setFilterValue] = useState("");
     const [selectedKeys, setSelectedKeys] = useState(new Set([]));
-    const [roleFilter, setRoleFilter] = useState("all");
     const [visibleColumns, setVisibleColumns] = useState(
         new Set(INITIAL_VISIBLE_COLUMNS)
     );
@@ -189,31 +188,27 @@ export default function UsersListComponent() {
         direction: "ascending",
     });
     const [page, setPage] = useState(1);
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
-    const [isVisible, setIsVisible] = useState(false);
-    const toggleVisibility = () => setIsVisible(!isVisible);
-
-    const [formData, setFormData] = useState({
-        first_name: "",
-        last_name: "",
-        email: "",
-        password: "",
-        role: "member",
-    });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const [formData, setFormData] = useState({
+        name: "",
+        price: "",
+        duration: "",
+    });
 
-    // Fetch users API Call 
+
+    // Fetch Membership Plans API Call 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     useEffect(() => {
-        fetchUsers();
+        fetchMembershipPlans();
     }, []);
-    const fetchUsers = async () => {
+    const fetchMembershipPlans = async () => {
         try {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
             const response = await fetch(
-                `${API_BASE_URL}/api/admin/users/list`,
+                `${API_BASE_URL}/api/admin/membership-plans/list`,
                 {
                     method: "GET",
                     headers: {
@@ -222,35 +217,21 @@ export default function UsersListComponent() {
                 }
             );
             const res = await response.json();
-            setUsers(res.data);
+            setMembershipPlans(res.data);
         } catch (error) {
-            console.error("Error fetching user:", error);
+            // console.error("Error fetching mp:", error);
         }
     };
 
-    const hasSearchFilter = Boolean(filterValue);
-
-
-    const generatePassword = () => {
-        const chars =
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!";
-        let password = "";
-        for (let i = 0; i < 10; i++) {
-            password += chars.charAt(Math.floor(Math.random() * chars.length));
+    const handleAddMembership = async (onClose) => {
+        if (!formData.name || !formData.price || !formData.duration) {
+            addToast({
+                title: "All fields are required",
+                color: "danger",
+            });
+            return;
         }
 
-        setFormData((prev) => ({
-            ...prev,
-            password,
-        }));
-    };
-    const handleChange = (field, value) => {
-        setFormData((prev) => ({
-            ...prev,
-            [field]: value,
-        }));
-    };
-    const handleAddUser = async (onClose) => {
         try {
             setIsSubmitting(true);
 
@@ -259,86 +240,40 @@ export default function UsersListComponent() {
                 sessionStorage.getItem("token");
 
             const response = await fetch(
-                `${API_BASE_URL}/api/admin/users/store`,
+                `${API_BASE_URL}/api/admin/membership-plans/store`,
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
                     },
-                    body: JSON.stringify(formData),
+                    body: JSON.stringify({
+                        name: formData.name,
+                        price: formData.price,
+                        duration: formData.duration,
+                    }),
                 }
             );
 
             const res = await response.json();
 
-            if (res.status === true) {
+            if (response.ok) {
                 addToast({
-                    title: "User Added",
-                    description: "New user added successfully",
+                    title: "Membership Added",
+                    description: "New Membership Plan Added Successfully",
                     variant: "flat",
                     color: "warning",
                 });
-            }
 
-            if (!response.ok) {
-                addToast({
-                    title: "Error",
-                    description: "Something went wrong",
-                    variant: "flat",
-                    color: "danger",
+                fetchMembershipPlans();
+
+                setFormData({
+                    name: "",
+                    price: "",
+                    duration: "",
                 });
-                return;
-            }
 
-            // Refresh users list
-            fetchUsers();
-
-            // Reset form
-            setFormData({
-                first_name: "",
-                last_name: "",
-                email: "",
-                password: "",
-                role: "member",
-            });
-
-            onClose();
-        } catch (error) {
-            addToast({
-                    title: "Error",
-                    description: "Something went wrong",
-                    variant: "flat",
-                    color: "danger",
-                });
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-    const handleDeleteUser = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this user?")) return;
-
-        try {
-            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-
-            const response = await fetch(`${API_BASE_URL}/api/admin/users/destroy/${id}`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            const res = await response.json();
-
-            if (res.status === true) {
-                addToast({
-                    title: "User Deleted!",
-                    description: "User deleted successfully..",
-                    variant: "flat",
-                    color: "warning",
-                });
-                // Refresh users list
-                fetchUsers();
+                onClose();
             } else {
                 addToast({
                     title: "Error",
@@ -349,13 +284,58 @@ export default function UsersListComponent() {
             }
         } catch (error) {
             addToast({
-                title: "Error",
+                title: "Server Error",
+                color: "danger",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+    const handleDeleteMembership = async (id) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this membership plan?");
+        if (!confirmDelete) return;
+
+        try {
+            const token =
+                localStorage.getItem("token") ||
+                sessionStorage.getItem("token");
+
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/membership-plans/destroy/${id}`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (response.ok) {
+                addToast({
+                    title: "Membership Deleted",
+                    description: "Membership plan deleted successfully",
+                    color: "warning",
+                    variant: "flat"
+                });
+
+                fetchMembershipPlans();
+            } else {
+                console.log(response.json())
+                addToast({
+                    title: "Delete Failed",
+                    description: "Unable to delete membership",
+                    color: "danger",
+                });
+            }
+        } catch (error) {
+            addToast({
+                title: "Server Error",
                 description: "Something went wrong",
-                variant: "flat",
                 color: "danger",
             });
         }
     };
+    const hasSearchFilter = Boolean(filterValue);
 
     /* -------------------- HEADER COLUMNS -------------------- */
 
@@ -367,28 +347,16 @@ export default function UsersListComponent() {
     }, [visibleColumns]);
 
     const filteredItems = useMemo(() => {
-        let filteredUsers = [...users];
+        let filteredMP = [...membershipPlans];
         if (hasSearchFilter) {
             const search = filterValue.toLowerCase();
 
-            filteredUsers = filteredUsers.filter((user) =>
-                (
-                    `${user.fname ?? ""} ${user.lname ?? ""} ${user.email ?? ""}`
-                )
-                    .toLowerCase()
-                    .includes(search)
+            filteredMP = filteredMP.filter((mp) => (`${mp.name}`).toLowerCase().includes(search)
             );
         }
 
-        // 🎯 Role filter
-        if (roleFilter !== "all") {
-            filteredUsers = filteredUsers.filter(
-                (user) => user.role === roleFilter
-            );
-        }
-
-        return filteredUsers;
-    }, [users, filterValue, hasSearchFilter, roleFilter]);
+        return filteredMP;
+    }, [membershipPlans, filterValue, hasSearchFilter]);
 
     /* -------------------- PAGINATION -------------------- */
 
@@ -417,27 +385,19 @@ export default function UsersListComponent() {
 
     /* -------------------- CELL RENDER -------------------- */
 
-    const renderCell = useCallback((user, columnKey) => {
-        const cellValue = user[columnKey];
+    const renderCell = useCallback((mp, columnKey) => {
+        const cellValue = mp[columnKey];
 
         switch (columnKey) {
-            case "name":
-                const userDescription = user.role === "admin" ? "Admin" : "Member";
+            case "duration":
                 return (
-                    <User
-                        avatarProps={{ radius: "lg", src: `${API_BASE_URL}/storage/users/profile_images/${user.profile_img}` }}
-                        description={userDescription}
-                        name={`${user.fname} ${user.lname}`}
-                    />
+                    `${cellValue} days`
                 );
-            case "registered_at":
-                const created_at = user.created_at;
-                return new Date(created_at).toLocaleDateString("en-IN", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                }).replace(" ", ", ");
-
+            case "status":
+                const status = mp.is_active === 1 ? <Chip color="warning" variant="flat">Active</Chip> : <Chip color="danger" variant="flat">Inactive</Chip>;
+                return (
+                    status
+                );
             case "actions":
                 return (
                     <div className="relative flex items-center gap-2">
@@ -446,15 +406,15 @@ export default function UsersListComponent() {
                                 <EyeIcon />
                             </span>
                         </Tooltip>
-                        <Tooltip content="Edit user">
+                        <Tooltip content="Edit Membership">
                             <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
                                 <EditIcon />
                             </span>
                         </Tooltip>
-                        <Tooltip color="danger" content="Delete user">
-                            <span
+                        <Tooltip color="danger" content="Delete Membership">
+                            <span 
+                                onClick={() => handleDeleteMembership(mp.id)}
                                 className="text-lg text-danger cursor-pointer active:opacity-50"
-                                onClick={() => handleDeleteUser(user.id)}
                             >
                                 <DeleteIcon />
                             </span>
@@ -491,21 +451,6 @@ export default function UsersListComponent() {
                     />
 
                     <div className="flex gap-3">
-                        <Select
-                            size={'sm'}
-                            className="w-40"
-                            label="Filter by Role"
-                            selectedKeys={[roleFilter]}
-                            onSelectionChange={(keys) => {
-                                const value = Array.from(keys)[0];
-                                setRoleFilter(value);
-                                setPage(1);
-                            }}
-                        >
-                            <SelectItem key="all">All</SelectItem>
-                            <SelectItem key="admin">Admin</SelectItem>
-                            <SelectItem key="member">Member</SelectItem>
-                        </Select>
 
                         <Select className="w-53" size="sm" label="Rows per page" value={rowsPerPage}
                             onChange={(e) => {
@@ -523,7 +468,7 @@ export default function UsersListComponent() {
                 </div>
                 <div className="flex justify-between items-center">
                     <span className="text-default-400 text-small">
-                        Total {filteredItems.length} users
+                        Total {filteredItems.length} Membership Plans
                     </span>
                     <div className="flex gap-4">
 
@@ -545,7 +490,7 @@ export default function UsersListComponent() {
                                 ))}
                             </DropdownMenu>
                         </Dropdown>
-                        <Button color="warning" endContent={<Plus size={20} strokeWidth={1} />} onPress={onOpen}>Add User</Button>
+                        <Button color="warning" onPress={onOpen} endContent={<Plus size={20} strokeWidth={1} />} >Add Membership Plan</Button>
                     </div>
                 </div>
             </div>
@@ -556,8 +501,6 @@ export default function UsersListComponent() {
         rowsPerPage,
         filteredItems.length,
     ]);
-
-    /* -------------------- BOTTOM CONTENT -------------------- */
 
     const bottomContent = (
         <div className="py-2 px-2 flex justify-between items-center">
@@ -582,7 +525,7 @@ export default function UsersListComponent() {
             <div className="m-4">
                 <Table
                     isHeaderSticky
-                    aria-label="Admin Users Table"
+                    aria-label="Admin Membership Plan Table"
                     bottomContent={bottomContent}
                     bottomContentPlacement="outside"
                     topContent={topContent}
@@ -605,7 +548,7 @@ export default function UsersListComponent() {
                     </TableHeader>
 
                     <TableBody
-                        emptyContent={"No users found"}
+                        emptyContent={"No Membership Plan found"}
                         items={sortedItems}
                     >
                         {(item) => (
@@ -624,93 +567,36 @@ export default function UsersListComponent() {
                 <ModalContent>
                     {(onClose) => (
                         <>
-                            <ModalHeader className="flex flex-col gap-1">Add New User</ModalHeader>
+                            <ModalHeader className="flex flex-col gap-1">Add Membership</ModalHeader>
                             <ModalBody>
-                                <div className="grid grid-cols-12 gap-4">
-                                    <div className="col-span-12 md:col-span-6">
-                                        <Input
-                                            variant="flat"
-                                            label="First Name"
-                                            isRequired
-                                            value={formData.first_name}
-                                            onValueChange={(value) =>
-                                                handleChange("first_name", value)
-                                            }
-                                        />
-                                    </div>
+                                <Input
+                                    label="Name"
+                                    placeholder="Enter Membership Name"
+                                    variant="flat"
+                                    isRequired
+                                    value={formData.name}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, name: e.target.value })
+                                    }
+                                />
 
-                                    <div className="col-span-12 md:col-span-6">
-                                        <Input
-                                            variant="flat"
-                                            label="Last Name"
-                                            isRequired
-                                            value={formData.last_name}
-                                            onValueChange={(value) =>
-                                                handleChange("last_name", value)
-                                            }
-                                        />
-                                    </div>
+                                <NumberInput
+                                    label="Price"
+                                    isRequired
+                                    value={formData.price}
+                                    onValueChange={(value) =>
+                                        setFormData((prev) => ({ ...prev, price: value }))
+                                    }
+                                />
 
-                                    <div className="col-span-12">
-
-
-                                        <Input
-                                            label="Email"
-                                            type="email"
-                                            variant="flat"
-                                            isRequired
-                                            value={formData.email}
-                                            onValueChange={(value) =>
-                                                handleChange("email", value)
-                                            }
-                                        />
-                                    </div>
-                                    <div className="col-span-12">
-
-
-                                        <div className="flex flex-col ">
-                                            <Input
-                                                label="Password"
-                                                variant="flat"
-                                                isRequired
-                                                value={formData.password}
-                                                onValueChange={(value) =>
-                                                    handleChange("password", value)
-                                                }
-                                                type={isVisible ? "text" : "password"}
-                                                endContent={
-                                                    <button
-                                                        aria-label="toggle password visibility"
-                                                        className="focus:outline-solid outline-transparent"
-                                                        type="button"
-                                                        onClick={toggleVisibility}
-
-                                                    >
-                                                        {isVisible ? (
-                                                            <EyeClosed className="text-2xl text-default-400 cursor-pointer" />
-                                                        ) : (
-                                                            <Eye className="text-2xl text-default-400 cursor-pointer" />
-                                                        )}
-                                                    </button>
-                                                }
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="col-span-12">
-
-
-                                        <Button
-                                            onPress={generatePassword}
-                                            color="warning"
-                                            variant="flat"
-                                            className="cursor-pointer w-full"
-                                        >
-                                            Generate
-                                        </Button>
-                                    </div>
-
-
-                                </div>
+                                <NumberInput
+                                    label="Duration (Days)"
+                                    isRequired
+                                    value={formData.duration}
+                                    onValueChange={(value) =>
+                                        setFormData((prev) => ({ ...prev, duration: value }))
+                                    }
+                                />
                             </ModalBody>
                             <ModalFooter>
                                 <Button color="danger" variant="flat" onPress={onClose}>
@@ -719,9 +605,9 @@ export default function UsersListComponent() {
                                 <Button
                                     color="warning"
                                     isLoading={isSubmitting}
-                                    onPress={() => handleAddUser(onClose)}
+                                    onPress={() => handleAddMembership(onClose)}
                                 >
-                                    Add User
+                                    Add Membership
                                 </Button>
                             </ModalFooter>
                         </>
