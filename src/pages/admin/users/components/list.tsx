@@ -33,6 +33,7 @@ import {
 import { Checkbox } from "@heroui/checkbox";
 import { Link } from "@heroui/link";
 import { addToast } from "@heroui/toast";
+import { useNavigate } from "react-router-dom";
 
 /* -------------------- COLUMNS -------------------- */
 
@@ -40,6 +41,7 @@ export const columns = [
     { name: "ID", uid: "id", sortable: true },
     { name: "NAME", uid: "name", sortable: true },
     { name: "EMAIL", uid: "email" },
+    { name: "MEMBERSHIP STATUS", uid: "membership" },
     { name: "REGISTERED ON", uid: "registered_at" },
     { name: "ACTIONS", uid: "actions" },
 ];
@@ -52,6 +54,7 @@ export const columns = [
 const INITIAL_VISIBLE_COLUMNS = [
     "name",
     "email",
+    "membership",
     "registered_at",
     "actions"
 ];
@@ -176,6 +179,7 @@ export const EditIcon = (props) => {
     );
 };
 export default function UsersListComponent() {
+    const navigate = useNavigate();
     const [users, setUsers] = useState([]);
     const [filterValue, setFilterValue] = useState("");
     const [selectedKeys, setSelectedKeys] = useState(new Set([]));
@@ -438,11 +442,21 @@ export default function UsersListComponent() {
                     year: "numeric",
                 }).replace(" ", ", ");
 
+            case "membership":
+                const membership = user.active_membership;
+                if (membership) {
+                    return membership.status == 'active' ? <Chip color="warning" variant="flat">Active</Chip> : <Chip color="danger" variant="flat">Inactive</Chip>
+                }else{
+                    return <Chip color="danger" variant="flat">Inactive</Chip>
+                }
+
             case "actions":
                 return (
                     <div className="relative flex items-center gap-2">
                         <Tooltip content="Details">
-                            <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                            <span className="text-lg text-default-400 cursor-pointer active:opacity-50"
+                            onClick={() => navigate(`/admin/users/view/${user.id}`)}
+                            >
                                 <EyeIcon />
                             </span>
                         </Tooltip>

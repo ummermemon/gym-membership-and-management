@@ -10,6 +10,7 @@ import AdminProtectedRoute from "./AdminProtectedRoute";
 import AdminDashboardPage from "./pages/admin/dashboard";
 import UsersList from "./pages/admin/users/usersList";
 import MembershipPlanList from "./pages/admin/membership-plans/membershipPlanList";
+import ViewUser from "./pages/admin/users/viewUser";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
       <Route element={<MemberProtectedRoute><MemberDashboardPage /></MemberProtectedRoute>} path="/member/dashboard" />
       <Route element={<AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute>} path="/admin/dashboard" />
       <Route element={<AdminProtectedRoute><UsersList /></AdminProtectedRoute>} path="/admin/users" />
+      <Route element={<AdminProtectedRoute><ViewUser /></AdminProtectedRoute>} path="/admin/users/view/:id" />
       <Route element={<AdminProtectedRoute><MembershipPlanList /></AdminProtectedRoute>} path="/admin/membership-plans" />
     </Routes>
   );
