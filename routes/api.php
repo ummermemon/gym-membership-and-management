@@ -35,7 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/list', [UsersController::class, 'list']);
             Route::get('/destroy/{id}', [UsersController::class, 'destroy']);
             Route::post('/store', [UsersController::class, 'store']);
-            Route::post('/view/{id}', [UsersController::class, 'view']);
+            Route::get('/view/{id}', [UsersController::class, 'view']);
         });
     });
 
