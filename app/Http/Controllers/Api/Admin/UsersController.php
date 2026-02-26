@@ -55,5 +55,14 @@ class UsersController extends Controller
             'status' => true,
             'message' => 'User Deleted Successfully'
         ]);
-    }   
+    }
+    public function view(Request $request, $id)
+    {
+        $user = User::find($id);
+        return response()->json([
+            'status' => true,
+            'message' => 'User Fetch Successfully',
+            'user' => $user
+        ]);
+    }      
 }
