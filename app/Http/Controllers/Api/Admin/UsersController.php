@@ -41,7 +41,7 @@ class UsersController extends Controller
     }
     public function list(Request $request)
     {
-        $users = User::all();
+        $users = User::with('activeMembership')->where('role', 'member')->get();
         return response()->json([
             'status' => true,
             'message' => 'Users fetch successfully',
