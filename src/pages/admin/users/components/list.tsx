@@ -429,7 +429,7 @@ export default function UsersListComponent() {
                 const userDescription = user.role === "admin" ? "Admin" : "Member";
                 return (
                     <User
-                        avatarProps={{ radius: "lg", src: `${API_BASE_URL}/storage/users/profile_images/${user.profile_img}` }}
+                        avatarProps={{ radius: "lg", src: `${API_BASE_URL}/storage/users/profile_images/${user.profile_img}`, name: `${user.fname} ${user.lname}`, showFallback:true }}
                         description={userDescription}
                         name={`${user.fname} ${user.lname}`}
                     />
