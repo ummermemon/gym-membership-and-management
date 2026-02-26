@@ -21,4 +21,9 @@ class UserMembership extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function plan()
+    {
+        return $this->belongsTo(MembershipPlan::class, 'membership_plan_id');
+    }
 }

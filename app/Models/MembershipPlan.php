@@ -12,8 +12,13 @@ class MembershipPlan extends Model
     protected $fillable = [
         'name',
         'description',
-        'duration',
+        'duration_days',
         'price',
         'is_active'
     ];
+
+    public function memberships()
+    {
+        return $this->hasMany(UserMembership::class);
+    }
 }

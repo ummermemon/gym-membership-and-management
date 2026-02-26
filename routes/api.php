@@ -29,7 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/store', [MembershipPlanController::class, 'store']);
         });
         Route::prefix('user-membership')->group(function () {
-            Route::get('/assign', [UserMembershipController::class, 'assign']);
+            Route::post('/assign', [UserMembershipController::class, 'assign']);
         });
         Route::prefix('users')->group(function () {
             Route::get('/list', [UsersController::class, 'list']);

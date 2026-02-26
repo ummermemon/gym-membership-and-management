@@ -25,6 +25,16 @@ class User extends Authenticatable
         'email',
         'password',
     ];
+    public function memberships()
+    {
+        return $this->hasMany(UserMembership::class);
+    }
+
+    public function activeMembership()
+    {
+        return $this->hasOne(UserMembership::class)
+                    ->where('status', 'active');
+    }
 
     /**
      * The attributes that should be hidden for serialization.
