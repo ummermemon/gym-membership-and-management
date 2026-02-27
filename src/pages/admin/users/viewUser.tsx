@@ -9,7 +9,12 @@ import { Breadcrumbs, BreadcrumbItem } from "@heroui/breadcrumbs";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Accordion, AccordionItem } from "@heroui/accordion";
-import { History, User, ReceiptText  } from 'lucide-react';
+import { History, User, ReceiptText } from 'lucide-react';
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/modal";
+import { Select, SelectItem } from "@heroui/select";
+import { addToast } from "@heroui/toast";
+
+
 
 function InfoRow({ label, value }) {
     return (
@@ -24,6 +29,10 @@ export default function ViewUser() {
     const { id } = useParams();
     const [user, setUser] = useState({});
     const [memberships, setMemberships] = useState([]);
+    const [plans, setPlans] = useState([]);
+    const [isOpen, setIsOpen] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState(null);
+
     useEffect(() => {
         fetchUser();
     }, [id]);
@@ -47,6 +56,69 @@ export default function ViewUser() {
             setMemberships(res.user[0].memberships || []);
         } catch (error) {
             console.error("Error fetching user:", error);
+        }
+    };
+    useEffect(() => {
+        fetchPlans();
+    }, []);
+
+    const fetchPlans = async () => {
+        try {
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/membership-plans/list`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            const res = await response.json();
+            setPlans(res.data);
+        } catch (error) {
+            // console.error("Error fetching mp:", error);
+        }
+    };
+    const handleAssign = async () => {
+        try {
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+            const res = await fetch(`${API_BASE_URL}/api/admin/user-membership/assign`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    user_id: user.id,
+                    membership_plan_id: Number(selectedPlan)
+                })
+            });
+
+            const data = await res.json();
+            // console.log(data);
+
+            if (data.status) {
+                fetchUser(); // Refresh user data
+                addToast({
+                    title: "Membership Assigned",
+                    description: "Membership assigned successfully",
+                    variant: "flat",
+                    color: "warning",
+                });
+                setIsOpen(false);
+            } else {
+                addToast({
+                    title: "Error",
+                    description: "Something went wrong",
+                    variant: "flat",
+                    color: "warning",
+                });
+            }
+
+        } catch (error) {
+            // console.error(error);
         }
     };
 
@@ -109,11 +181,11 @@ export default function ViewUser() {
                     <Card >
                         <CardHeader>
                             <div className="flex gap-2 items-center">
-                            <User strokeWidth={1} className="text-warning-500" />
-                            <h3 className="font-semibold text-lg text-default-500">
-                                Personal Information
-                            </h3>
-                        </div>
+                                <User strokeWidth={1} className="text-warning-500" />
+                                <h3 className="font-semibold text-lg text-default-500">
+                                    Personal Information
+                                </h3>
+                            </div>
                         </CardHeader>
                         <CardBody className="space-y-3">
                             {user.phone ?
@@ -147,14 +219,14 @@ export default function ViewUser() {
 
                     {/* Membership Info */}
                     <Card >
-                         
+
                         <CardHeader>
                             <div className="flex gap-2 items-center">
-                            <ReceiptText strokeWidth={1} className="text-warning-500" />
-                            <h3 className="font-semibold text-lg text-default-500">
-                                Membership Details
-                            </h3>
-                        </div>
+                                <ReceiptText strokeWidth={1} className="text-warning-500" />
+                                <h3 className="font-semibold text-lg text-default-500">
+                                    Membership Details
+                                </h3>
+                            </div>
                         </CardHeader>
                         <CardBody className="space-y-3">
 
@@ -247,11 +319,25 @@ export default function ViewUser() {
                 </div>
                 <Card className="mt-6">
                     <CardHeader>
-                        <div className="flex gap-2 items-center">
-                            <History strokeWidth={1} className="text-warning-500" />
-                            <h3 className="font-semibold text-lg text-default-500">
-                                Membership History
-                            </h3>
+                        <div className="flex flex-row items-center justify-between w-full">
+
+
+                            <div className="flex gap-2 items-center ">
+                                <History strokeWidth={1} className="text-warning-500" />
+                                <h3 className="font-semibold text-lg text-default-500">
+                                    Membership History
+                                </h3>
+                            </div>
+                            <div className="ml-auto">
+                                <Button
+                                    size="sm"
+                                    color="warning"
+                                    variant="flat"
+                                    onClick={() => setIsOpen(true)}
+                                >
+                                    Assign / Renew
+                                </Button>
+                            </div>
                         </div>
                     </CardHeader>
                     <CardBody>
@@ -326,6 +412,37 @@ export default function ViewUser() {
                     </CardBody>
                 </Card>
             </div>
+            <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+                <ModalContent>
+                    <ModalHeader>Assign Membership</ModalHeader>
+                    <ModalBody>
+
+                        <Select
+  label="Select Plan"
+  placeholder="Choose a membership plan"
+  selectedKeys={
+    selectedPlan !== null ? new Set([String(selectedPlan)]) : new Set()
+  }
+  onSelectionChange={(keys) => {
+    const value = Array.from(keys)[0];
+    setSelectedPlan(Number(value));
+  }}
+>
+  {plans.map((plan) => (
+    <SelectItem key={String(plan.id)}>
+      {plan.name} - ₹{plan.price}
+    </SelectItem>
+  ))}
+</Select>
+
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="warning" onClick={handleAssign}>
+                            Assign
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
         </>
     );
 }
