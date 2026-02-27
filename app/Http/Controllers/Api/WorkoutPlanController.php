@@ -96,4 +96,13 @@ class WorkoutPlanController extends Controller
             'data' => $exercise
         ]);
     }
+    public function show($id)
+    {
+        $plan = WorkoutPlan::with('days.exercises')->find($id);
+
+        return response()->json([
+            'status' => true,
+            'data' => $plan
+        ]);
+    }
 }
