@@ -41,6 +41,7 @@ class WorkoutPlanController extends Controller
             'data' => $plan
         ]);
     }
+
     public function addDay(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -96,6 +97,7 @@ class WorkoutPlanController extends Controller
             'data' => $exercise
         ]);
     }
+
     public function show($id)
     {
         $plan = WorkoutPlan::with('days.exercises')->find($id);
@@ -105,4 +107,14 @@ class WorkoutPlanController extends Controller
             'data' => $plan
         ]);
     }
+
+    public function list() {
+        $plans = WorkoutPlan::all();
+
+        return response()->json([
+            'status' => true,
+            'data' => $plans
+        ]);
+    }
+
 }
