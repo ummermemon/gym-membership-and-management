@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\Admin\MembershipPlanController;
 use App\Http\Controllers\Api\Admin\UsersController;
 use App\Http\Controllers\Api\Admin\UserMembershipController;
+use App\Http\Controllers\Api\WorkoutPlanController;
 
 
 
@@ -30,6 +31,9 @@ Route::middleware('auth:sanctum')->group(function () {
         });
         Route::prefix('user-membership')->group(function () {
             Route::post('/assign', [UserMembershipController::class, 'assign']);
+        });
+        Route::prefix('workout-plans')->group(function () {
+            Route::post('/store', [WorkoutPlanController::class, 'store']);
         });
         Route::prefix('users')->group(function () {
             Route::get('/list', [UsersController::class, 'list']);
