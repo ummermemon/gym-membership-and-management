@@ -266,6 +266,15 @@ export default function AdminNavbarComponent(currentPage) {
                             Users
                         </Link>
                     </NavbarItem>
+                    <NavbarItem isActive={location.pathname === "/admin/workout-plans"}>
+                        <Link
+                            as="button"
+                            color={location.pathname === "/admin/workout-plans" ? "warning" : "foreground"}
+                            onClick={() => navigate("/admin/workout-plans")}
+                        >
+                            Workout Plan
+                        </Link>
+                    </NavbarItem>
                     <NavbarItem isActive={location.pathname === "/admin/membership-plans"}>
                         <Link
                             as="button"
