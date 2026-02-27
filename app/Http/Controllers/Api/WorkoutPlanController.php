@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\WorkoutPlan;
 use App\Models\WorkoutDay;
+use App\Models\WorkoutDayExercise;
 
 
 class WorkoutPlanController extends Controller
@@ -63,6 +64,36 @@ class WorkoutPlanController extends Controller
             'status' => true,
             'message' => 'Day Added',
             'data' => $day
+        ]);
+    }
+    public function addExcercise(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'exercise_name' => 'required|string',
+            'sets' => 'required|integer',
+            'reps' => 'required|integer',
+            'rest_time' => 'required|string',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation errors',
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $exercise = WorkoutDayExercise::create([
+            'workout_day_id' => $id,
+            'exercise_name' => $request->exercise_name,
+            'sets' => $request->sets,
+            'reps' => $request->reps,
+            'rest_time' => $request->rest_time
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Exercise Added',
+            'data' => $exercise
         ]);
     }
 }

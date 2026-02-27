@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('exercise_name');
             $table->integer('sets')->nullable();
             $table->integer('reps')->nullable();
-            $table->string('rest_time')->nullable(); // 60 sec, 90 sec
+            $table->string('rest_time')->nullable();
 
             $table->timestamps();
         });
