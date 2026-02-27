@@ -418,22 +418,22 @@ export default function ViewUser() {
                     <ModalBody>
 
                         <Select
-  label="Select Plan"
-  placeholder="Choose a membership plan"
-  selectedKeys={
-    selectedPlan !== null ? new Set([String(selectedPlan)]) : new Set()
-  }
-  onSelectionChange={(keys) => {
-    const value = Array.from(keys)[0];
-    setSelectedPlan(Number(value));
-  }}
->
-  {plans.map((plan) => (
-    <SelectItem key={String(plan.id)}>
-      {plan.name} - ₹{plan.price}
-    </SelectItem>
-  ))}
-</Select>
+                            label="Select Plan"
+                            placeholder="Choose a membership plan"
+                            selectedKeys={
+                                selectedPlan !== null ? new Set([String(selectedPlan)]) : new Set()
+                            }
+                            onSelectionChange={(keys) => {
+                                const value = Array.from(keys)[0];
+                                setSelectedPlan(Number(value));
+                            }}
+                        >
+                            {plans.map((plan) => (
+                                <SelectItem key={String(plan.id)}>
+                                    {plan.name} - ₹{plan.price}
+                                </SelectItem>
+                            ))}
+                        </Select>
 
                     </ModalBody>
                     <ModalFooter>

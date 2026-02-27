@@ -235,75 +235,37 @@ export default function MemberNavbarComponent() {
         <>
             <Navbar className="border-b py-5" maxWidth="full">
                 <NavbarBrand className="justify-start">
-                    <Image src="/assets/images/logo/erased-horizontal.png" className="h-20" />
+                    <Image
+                        src="/assets/images/logo/logo/black/erased.png"
+                        className="h-20 block dark:hidden"
+                    />
+                    <Image
+                        src="/assets/images/logo/logo/white/erased.png"
+                        className="h-20 hidden dark:block"
+                    />
                 </NavbarBrand>
                 <NavbarContent className="hidden sm:flex gap-4" justify="center" >
                     <NavbarItem isActive>
-                        <Link aria-current="page" href="#">
-                            Dashboard
-                        </Link>
-                    </NavbarItem>
-                    <Dropdown>
-                        <NavbarItem>
-                            <DropdownTrigger>
-                                <Button
-                                    disableRipple
-                                    className="p-0 bg-transparent data-[hover=true]:bg-transparent"
-                                    endContent={<ChevronDown />}
-                                    radius="sm"
-                                    variant="light"
-                                >
-                                    Workout Plan
-                                </Button>
-                            </DropdownTrigger>
+                        <NavbarItem isActive={location.pathname === "/member/dashboard"}>
+                            <Link
+                                as="button"
+                                color={location.pathname === "/member/dashboard" ? "warning" : "foreground"}
+                                onClick={() => navigate("/admin/dashboard")}
+                            >
+                                Dashboard
+                            </Link>
                         </NavbarItem>
-                        <DropdownMenu
-                            aria-label="ACME features"
-                            itemClasses={{
-                                base: "gap-4",
-                            }}
-                        >
-                            <DropdownItem
-                                key="autoscaling"
-                                description="ACME scales apps based on demand and load"
-                                startContent={<ChevronDown />}
+                    </NavbarItem>
+                    <NavbarItem isActive>
+                        <NavbarItem isActive={location.pathname === "/member/diet-plan"}>
+                            <Link
+                                as="button"
+                                color={location.pathname === "/member/diet-plan" ? "warning" : "foreground"}
+                                onClick={() => navigate("/admin/diet-plan")}
                             >
                                 Diet Plan
-                            </DropdownItem>
-                            <DropdownItem
-                                key="usage_metrics"
-                                description="Real-time metrics to debug issues"
-                                startContent={<ChevronDown />}
-                            >
-                                Usage Metrics
-                            </DropdownItem>
-                            <DropdownItem
-                                key="production_ready"
-                                description="ACME runs on ACME, join us at web scale"
-                                startContent={<ChevronDown />}
-                            >
-                                Production Ready
-                            </DropdownItem>
-                            <DropdownItem
-                                key="99_uptime"
-                                description="High availability and uptime guarantees"
-                                startContent={<ChevronDown />}
-                            >
-                                +99% Uptime
-                            </DropdownItem>
-                            <DropdownItem
-                                key="supreme_support"
-                                description="Support team ready to respond"
-                                startContent={<ChevronDown />}
-                            >
-                                +Supreme Support
-                            </DropdownItem>
-                        </DropdownMenu>
-                    </Dropdown>
-                    <NavbarItem>
-                        <Link color="foreground" href="#">
-                            Diet Plan
-                        </Link>
+                            </Link>
+                        </NavbarItem>
                     </NavbarItem>
                 </NavbarContent>
                 <NavbarContent justify="end" className="space-x-5 mr-2">
@@ -323,6 +285,8 @@ export default function MemberNavbarComponent() {
                                         ? `${API_BASE_URL}/storage/users/profile_images/${user.profile_img}`
                                         : "/profile.png"
                                         }`,
+                                    name: `${user?.fname} ${user?.lname}`,
+                                    showFallback: true
                                 }}
                                 name={
                                     user
@@ -359,6 +323,8 @@ export default function MemberNavbarComponent() {
                                                 ? `${API_BASE_URL}/storage/users/profile_images/${user.profile_img}`
                                                 : "/profile.png"
                                                 }`,
+                                            name: `${user?.fname} ${user?.lname}`,
+                                            showFallback: true,
                                             size: "sm"
                                         }}
                                         classNames={{
