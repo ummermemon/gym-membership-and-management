@@ -116,5 +116,35 @@ class WorkoutPlanController extends Controller
             'data' => $plans
         ]);
     }
+    public function update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'level' => 'required|in:beginner,intermediate,advanced',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation errors',
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $title = $request->title;
+        $level = $request->level;
+
+        $plan = WorkoutPlan::findOrFail($id);
+
+        $plan->update([
+            'title' => $request->title,
+            'level' => $request->level
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Workout Plan Updated',
+            'data' => $plan
+        ]);
+    }
 
 }

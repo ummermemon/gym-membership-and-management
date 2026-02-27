@@ -38,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/{id}/add-days', [WorkoutPlanController::class, 'addDay']);
             Route::post('/days/{id}/add-exercises', [WorkoutPlanController::class, 'addExcercise']);
             Route::get('/list', [WorkoutPlanController::class, 'list']);
+            Route::post('/update/{id}', [WorkoutPlanController::class, 'update']);
         });
         Route::prefix('users')->group(function () {
             Route::get('/list', [UsersController::class, 'list']);
