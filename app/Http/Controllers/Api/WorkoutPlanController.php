@@ -17,7 +17,6 @@ class WorkoutPlanController extends Controller
         
         $validator = Validator::make($request->all(), [
             'title' => 'required',
-            'description' => 'required',
             'level' => 'required|in:beginner,intermediate,advanced',
         ]);
         if ($validator->fails()) {
@@ -39,6 +38,16 @@ class WorkoutPlanController extends Controller
             'status' => true,
             'message' => 'Workout Plan Created Successfully',
             'data' => $plan
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        WorkoutPlan::destroy($id);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Workout Plan Deleted'
         ]);
     }
 
@@ -67,6 +76,7 @@ class WorkoutPlanController extends Controller
             'data' => $day
         ]);
     }
+
     public function addExcercise(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -116,6 +126,7 @@ class WorkoutPlanController extends Controller
             'data' => $plans
         ]);
     }
+
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -146,5 +157,7 @@ class WorkoutPlanController extends Controller
             'data' => $plan
         ]);
     }
+
+    
 
 }
