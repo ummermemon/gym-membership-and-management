@@ -52,10 +52,13 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/list', [DietPlanController::class, 'index']);
             Route::get('/show/{id}', [DietPlanController::class, 'show']);
             // Route::post('/update/{id}', [DietPlanController::class, 'update']);
-            // Route::get('/destroy/{id}', [DietPlanController::class, 'destroy']);
+            Route::get('/destroy/{id}', [DietPlanController::class, 'destroy']);
 
             Route::post('/{id}/add-day', [DietPlanController::class, 'addDay']);
-            // Route::post('/day/{id}/add-meal', [DietPlanController::class, 'addMeal']);
+            Route::get('/day/{id}', [DietPlanController::class, 'deleteDay']);
+
+            Route::post('/day/{id}/add-meal', [DietPlanController::class, 'addMeal']);
+            Route::get('/meal/{id}', [DietPlanController::class, 'deleteMeal']);
 
             // Route::post('/assign', [DietPlanController::class, 'assignToUser']);
         });

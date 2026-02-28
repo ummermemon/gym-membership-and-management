@@ -175,7 +175,6 @@ class WorkoutPlanController extends Controller
             'data' => $plan
         ]);
     }
-
     
 
 }
