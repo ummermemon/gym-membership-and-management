@@ -77,6 +77,24 @@ class WorkoutPlanController extends Controller
         ]);
     }
 
+    public function destroyWorkoutdayExercise(Request $request, $id){
+        WorkoutDayExercise::destroy($id);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Workout Day Excercise Deleted'
+        ]);
+    }
+    
+    public function destroyDay(Request $request, $id){
+        WorkoutDay::destroy($id);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Workout Day Deleted'
+        ]);
+    }
+
     public function addExcercise(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [

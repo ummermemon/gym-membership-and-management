@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Admin\MembershipPlanController;
 use App\Http\Controllers\Api\Admin\UsersController;
 use App\Http\Controllers\Api\Admin\UserMembershipController;
 use App\Http\Controllers\Api\WorkoutPlanController;
+use App\Http\Controllers\Api\DietPlanController;
 
 
 
@@ -40,8 +41,23 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/destroy/{id}', [WorkoutPlanController::class, 'destroy']);
             
             Route::post('/{id}/add-days', [WorkoutPlanController::class, 'addDay']);
+            Route::get('/destroy-day/{id}', [WorkoutPlanController::class, 'destroyDay']);
+            
             Route::post('/days/{id}/add-exercises', [WorkoutPlanController::class, 'addExcercise']);
+            Route::get('/destroy-day-exercise/{id}', [WorkoutPlanController::class, 'destroyWorkoutdayExercise']);
             Route::get('/list', [WorkoutPlanController::class, 'list']);
+        });
+        Route::prefix('diet-plans')->group(function () {
+            Route::post('/store', [DietPlanController::class, 'store']);
+            Route::get('/list', [DietPlanController::class, 'index']);
+            Route::get('/show/{id}', [DietPlanController::class, 'show']);
+            // Route::post('/update/{id}', [DietPlanController::class, 'update']);
+            // Route::get('/destroy/{id}', [DietPlanController::class, 'destroy']);
+
+            Route::post('/{id}/add-day', [DietPlanController::class, 'addDay']);
+            // Route::post('/day/{id}/add-meal', [DietPlanController::class, 'addMeal']);
+
+            // Route::post('/assign', [DietPlanController::class, 'assignToUser']);
         });
 
         Route::prefix('users')->group(function () {
