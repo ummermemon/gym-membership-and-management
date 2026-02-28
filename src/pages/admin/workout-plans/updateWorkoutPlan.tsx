@@ -50,9 +50,7 @@ export default function UpdateWorkoutPlan() {
     const handleSubmit = async () => {
         try {
 
-            const token =
-                localStorage.getItem("token") ||
-                sessionStorage.getItem("token");
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
             const response = await fetch(
                 `${API_BASE_URL}/api/admin/workout-plans/update/${id}`,
@@ -79,7 +77,7 @@ export default function UpdateWorkoutPlan() {
                     color: "warning",
                 });
                 navigate('/admin/workout-plans');
-                
+
             } else {
                 addToast({
                     title: "Error",
@@ -132,9 +130,9 @@ export default function UpdateWorkoutPlan() {
                     </CardHeader>
                     <CardBody>
                         <form onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit();
-    }}>
+                            e.preventDefault();
+                            handleSubmit();
+                        }}>
                             <div className="grid grid-cols-12 gap-4">
                                 <div className="col-span-12">
                                     <Input label="Title" value={title} onChange={(e) => setTitle(e.target.value)} isRequired />

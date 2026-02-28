@@ -13,6 +13,7 @@ import MembershipPlanList from "./pages/admin/membership-plans/membershipPlanLis
 import WorkoutPlanList from "./pages/admin/workout-plans/workoutPlanList";
 import ViewUser from "./pages/admin/users/viewUser";
 import UpdateWorkoutPlan from "./pages/admin/workout-plans/updateWorkoutPlan";
+import ShowWorkoutPlan from "./pages/admin/workout-plans/showWorkoutPlan";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
       <Route element={<AdminProtectedRoute><MembershipPlanList /></AdminProtectedRoute>} path="/admin/membership-plans" />
       <Route element={<AdminProtectedRoute><WorkoutPlanList /></AdminProtectedRoute>} path="/admin/workout-plans" />
       <Route element={<AdminProtectedRoute><UpdateWorkoutPlan /></AdminProtectedRoute>} path="/admin/workout-plans/update/:id" />
+      <Route element={<AdminProtectedRoute><ShowWorkoutPlan /></AdminProtectedRoute>} path="/admin/workout-plans/show/:id" />
     </Routes>
   );
 }

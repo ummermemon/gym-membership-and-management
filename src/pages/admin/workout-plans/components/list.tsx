@@ -21,6 +21,15 @@ import { Select, SelectSection, SelectItem } from "@heroui/select";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tooltip } from "@heroui/tooltip";
+import {
+    Modal,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    useDisclosure,
+} from "@heroui/modal";
+import { addToast } from "@heroui/toast";
 
 /* -------------------- COLUMNS -------------------- */
 
@@ -173,6 +182,11 @@ export default function WorkoutPlansListComponent() {
         direction: "ascending",
     });
     const [page, setPage] = useState(1);
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const [newTitle, setNewTitle] = useState("");
+    const [newLevel, setNewLevel] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
     const navigate = useNavigate();
 
 
@@ -187,11 +201,11 @@ export default function WorkoutPlansListComponent() {
 
             const response = await fetch(
                 `${API_BASE_URL}/api/admin/workout-plans/list`, {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
             );
             const res = await response.json();
             setWorkoutPlans(res.data);
@@ -199,6 +213,105 @@ export default function WorkoutPlansListComponent() {
             // console.error("Error fetching mp:", error);
         }
     };
+    const handleAddWorkoutPlan = async (onClose) => {
+        try {
+            setIsLoading(true);
+
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/workout-plans/store`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        title: newTitle,
+                        level: newLevel,
+                    }),
+                }
+            );
+
+            const res = await response.json();
+
+            if (res.status === true) {
+
+                // Refresh table
+                fetchWorkoutPlans();
+
+                // Reset form
+                setNewTitle("");
+                setNewLevel("");
+
+                addToast({
+                    title: "Added Successfully",
+                    description: "Workout Plan Added successfully",
+                    variant: "flat",
+                    color: "warning",
+                });
+
+                // Close modal
+                onClose();
+            } else {
+                addToast({
+                    title: "Error",
+                    description: "Something went wrong",
+                    variant: "flat",
+                    color: "danger",
+                });
+            }
+        } catch (error) {
+            addToast({
+                title: "Error",
+                description: "Something went wrong",
+                variant: "flat",
+                color: "danger",
+            });
+        }
+    };
+    const handleDeleteWorkoutPlan = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this Workout Plan?")) return;
+
+        try {
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+
+            const response = await fetch(`${API_BASE_URL}/api/admin/workout-plans/destroy/${id}`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const res = await response.json();
+
+            if (res.status === true) {
+                addToast({
+                    title: "Workout Plan Deleted!",
+                    description: "Workout Plan deleted successfully..",
+                    variant: "flat",
+                    color: "warning",
+                });
+                fetchWorkoutPlans();
+            } else {
+                addToast({
+                    title: "Error",
+                    description: "Something went wrong",
+                    variant: "flat",
+                    color: "danger",
+                });
+            }
+        } catch (error) {
+            addToast({
+                title: "Error",
+                description: "Something went wrong",
+                variant: "flat",
+                color: "danger",
+            });
+        }
+    };
+
     const hasSearchFilter = Boolean(filterValue);
 
     /* -------------------- HEADER COLUMNS -------------------- */
@@ -253,11 +366,17 @@ export default function WorkoutPlansListComponent() {
         const cellValue = mp[columnKey];
 
         switch (columnKey) {
+            case "level":
+                return (
+                    <div className="capitalize">{cellValue}</div>
+                )
             case "actions":
                 return (
                     <div className="relative flex items-center gap-2">
-                        <Tooltip content="Details">
-                            <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                        <Tooltip content="View Workout Plan">
+                            <span className="text-lg text-default-400 cursor-pointer active:opacity-50"
+                                onClick={() => navigate(`/admin/workout-plans/show/${mp.id}`)}
+                            >
                                 <EyeIcon />
                             </span>
                         </Tooltip>
@@ -269,8 +388,9 @@ export default function WorkoutPlansListComponent() {
                             </span>
                         </Tooltip>
                         <Tooltip color="danger" content="Delete Workout Plan">
-                            <span 
+                            <span
                                 className="text-lg text-danger cursor-pointer active:opacity-50"
+                                onClick={() => handleDeleteWorkoutPlan(mp.id)}
                             >
                                 <DeleteIcon />
                             </span>
@@ -346,7 +466,7 @@ export default function WorkoutPlansListComponent() {
                                 ))}
                             </DropdownMenu>
                         </Dropdown>
-                        <Button color="warning" endContent={<Plus size={20} strokeWidth={1} />} >Add Workout Plan</Button>
+                        <Button color="warning" endContent={<Plus size={20} strokeWidth={1} />} onPress={onOpen}>Add Workout Plan</Button>
                     </div>
                 </div>
             </div>
@@ -418,7 +538,52 @@ export default function WorkoutPlansListComponent() {
                         )}
                     </TableBody>
                 </Table>
+
             </div>
+            <Modal isOpen={isOpen} placement="top-center" onOpenChange={onOpenChange}>
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className="flex flex-col gap-1">Add Workout Plan</ModalHeader>
+                            <ModalBody>
+                                <div className="grid grid-cols-12 gap-4">
+                                    <div className="col-span-12">
+                                        <Input
+                                            label="Title"
+                                            variant="flat"
+                                            value={newTitle}
+                                            onChange={(e) => setNewTitle(e.target.value)}
+                                            isRequired
+                                        />
+                                    </div>
+                                    <div className="col-span-12">
+                                        <Select selectedKeys={newLevel ? [newLevel] : []}
+                                            onSelectionChange={(keys) => {
+                                                const selected = Array.from(keys)[0];
+                                                setNewLevel(selected);
+                                            }} className="" label="Select Level" isRequired>
+                                            <SelectItem key="beginner">Beginner</SelectItem>
+                                            <SelectItem key="intermediate">Intermediate</SelectItem>
+                                            <SelectItem key="advanced">Advanced</SelectItem>
+                                        </Select>
+                                    </div>
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button color="danger" variant="flat" onPress={onClose}>
+                                    Close
+                                </Button>
+                                <Button
+                                    color="warning"
+                                    onPress={() => handleAddWorkoutPlan(onClose)}
+                                >
+                                    Add
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
         </>
     );
 }
