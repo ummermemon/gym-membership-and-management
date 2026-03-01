@@ -21,6 +21,8 @@ import {
 import { Accordion, AccordionItem } from "@heroui/accordion";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
 import { Tooltip } from "@heroui/tooltip";
+import {Tabs, Tab, Chip} from "@heroui/react";
+
 
 
 
@@ -75,27 +77,26 @@ export const DeleteIcon = (props) => {
     );
 };
 
-export default function ShowWorkoutPlan() {
+export default function ShowDietPlan() {
     const { id } = useParams();
-    const [workoutPlan, setWorkoutPlan] = useState([]);
+    const [dietPlan, setDietPlan] = useState([]);
     const navigate = useNavigate();
 
     const [isOpen, setIsOpen] = useState(false);
-    const [dayTitle, setDayTitle] = useState("");
-    const [dayNumber, setDayNumber] = useState(null);
+    const [dayName, setDayName] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const [isExerciseModalOpen, setIsExerciseModalOpen] = useState(false);
+    const [isMealModalOpen, setIsMealModalOpen] = useState(false);
     const [selectedDayId, setSelectedDayId] = useState(null);
 
-    const [exerciseName, setExerciseName] = useState("");
-    const [sets, setSets] = useState("");
-    const [reps, setReps] = useState("");
-    const [restTime, setRestTime] = useState("90");
+    const [foodName, setFoodName] = useState("");
+    const [mealType, setMealType] = useState("");
+    const [quantity, setQuantity] = useState("");
+    const [calories, setCalories] = useState("");
 
-    const openExerciseModal = (dayId) => {
+    const openMealModal = (dayId) => {
         setSelectedDayId(dayId);
-        setIsExerciseModalOpen(true);
+        setIsMealModalOpen(true);
     };
 
     const handleAddDay = async () => {
@@ -105,7 +106,7 @@ export default function ShowWorkoutPlan() {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
             const response = await fetch(
-                `${API_BASE_URL}/api/admin/workout-plans/${id}/add-days`,
+                `${API_BASE_URL}/api/admin/diet-plans/${id}/add-day`,
                 {
                     method: "POST",
                     headers: {
@@ -113,8 +114,7 @@ export default function ShowWorkoutPlan() {
                         Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({
-                        title: dayTitle,
-                        day_number: dayNumber,
+                        day_name: dayName,
                     }),
                 }
             );
@@ -129,8 +129,8 @@ export default function ShowWorkoutPlan() {
                 });
 
                 setIsOpen(false);
-                setDayTitle("");
-                fetchWorkoutPlan(); // refresh data
+                setDayName("");
+                fetchDietPlan(); // refresh data
             } else {
                 addToast({
                     title: "Error",
@@ -149,14 +149,14 @@ export default function ShowWorkoutPlan() {
         }
     };
 
-    const handleAddExercise = async () => {
+    const handleAddMeal = async () => {
         try {
             setLoading(true);
 
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
             const response = await fetch(
-                `${API_BASE_URL}/api/admin/workout-plans/days/${selectedDayId}/add-exercises`,
+                `${API_BASE_URL}/api/admin/diet-plans/day/${selectedDayId}/add-meal`,
                 {
                     method: "POST",
                     headers: {
@@ -164,10 +164,10 @@ export default function ShowWorkoutPlan() {
                         Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({
-                        exercise_name: exerciseName,
-                        sets: sets,
-                        reps: reps,
-                        rest_time: restTime,
+                        food_name: foodName,
+                        meal_type: mealType,
+                        quantity: quantity,
+                        calories: calories,
                     }),
                 }
             );
@@ -176,24 +176,24 @@ export default function ShowWorkoutPlan() {
 
             if (res.status === true) {
                 addToast({
-                    title: "Exercise Added",
-                    description: "Exercise added successfully",
+                    title: "Meal Added",
+                    description: "Meal added successfully",
                     color: "success",
                 });
 
-                setIsExerciseModalOpen(false);
+                setIsMealModalOpen(false);
 
                 // Reset form
-                setExerciseName("");
-                setSets("");
-                setReps("");
-                setRestTime("90");
+                setFoodName("");
+                setMealType("");
+                setQuantity("");
+                setCalories("");
 
-                fetchWorkoutPlan();
+                fetchDietPlan();
             } else {
                 addToast({
                     title: "Error",
-                    description: res.message || "Something went wrong",
+                    description: "Something went wrong",
                     color: "danger",
                 });
             }
@@ -208,13 +208,13 @@ export default function ShowWorkoutPlan() {
         }
     };
 
-    const handleDeleteExercise = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this Exercise?")) return;
+    const handleDeleteMeal = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this Meal?")) return;
 
         try {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
-            const response = await fetch(`${API_BASE_URL}/api/admin/workout-plans/destroy-day-exercise/${id}`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/diet-plans/meal/${id}`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -225,12 +225,12 @@ export default function ShowWorkoutPlan() {
 
             if (res.status === true) {
                 addToast({
-                    title: "Exercise Deleted!",
-                    description: "Exercise deleted successfully..",
+                    title: "Meal Deleted!",
+                    description: "Meal deleted successfully..",
                     variant: "flat",
                     color: "warning",
                 });
-                fetchWorkoutPlan();
+                fetchDietPlan();
             } else {
                 addToast({
                     title: "Error",
@@ -255,7 +255,7 @@ export default function ShowWorkoutPlan() {
         try {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
-            const response = await fetch(`${API_BASE_URL}/api/admin/workout-plans/destroy-day/${id}`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/diet-plans/day/${id}`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -271,7 +271,7 @@ export default function ShowWorkoutPlan() {
                     variant: "flat",
                     color: "warning",
                 });
-                fetchWorkoutPlan();
+                fetchDietPlan();
             } else {
                 addToast({
                     title: "Error",
@@ -290,21 +290,19 @@ export default function ShowWorkoutPlan() {
         }
     };
 
-
-
     useEffect(() => {
-        fetchWorkoutPlan();
+        fetchDietPlan();
     }, [id]);
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 
 
-    const fetchWorkoutPlan = async () => {
+    const fetchDietPlan = async () => {
         try {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
             const response = await fetch(
-                `${API_BASE_URL}/api/admin/workout-plans/show/${id}`,
+                `${API_BASE_URL}/api/admin/diet-plans/show/${id}`,
                 {
                     method: "GET",
                     headers: {
@@ -314,7 +312,7 @@ export default function ShowWorkoutPlan() {
             );
             const res = await response.json();
             if (res.status === true) {
-                setWorkoutPlan(res.data);
+                setDietPlan(res.data);
             }
         } catch (error) {
             // console.error("Error fetching user:", error);
@@ -324,7 +322,7 @@ export default function ShowWorkoutPlan() {
     return (
         <>
             <Helmet>
-                <title>View Workout Plan</title>
+                <title>View Diet Plan</title>
             </Helmet>
 
             <AdminNavbarComponent />
@@ -335,13 +333,13 @@ export default function ShowWorkoutPlan() {
                     <div className="flex flex-col">
                         <h1 className="text-2xl font-bold text-center">View</h1>
                         <Breadcrumbs>
-                            <BreadcrumbItem><Link to={`/admin/workout-plans`}>Workout Plans</Link></BreadcrumbItem>
-                            <BreadcrumbItem>{workoutPlan.title}</BreadcrumbItem>
+                            <BreadcrumbItem><Link to={`/admin/diet-plans`}>Diet Plans</Link></BreadcrumbItem>
+                            <BreadcrumbItem>{dietPlan.title}</BreadcrumbItem>
                             <BreadcrumbItem>View</BreadcrumbItem>
                         </Breadcrumbs>
                     </div>
                 </div>
-
+                
                 {/* Profile Card */}
                 <Card className="mb-6 p-5">
                     <CardHeader>
@@ -350,7 +348,7 @@ export default function ShowWorkoutPlan() {
 
                                 <Dumbbell strokeWidth={1} className="text-warning-500" />
                                 <h3 className="font-semibold text-lg text-default-500">
-                                    View Workout Plan
+                                    View Diet Plan
                                 </h3>
                             </div>
                             <Button color="warning" onPress={() => setIsOpen(true)}>
@@ -363,29 +361,29 @@ export default function ShowWorkoutPlan() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <p className="text-sm text-gray-500">Title</p>
-                                <p className="font-semibold">{workoutPlan?.title}</p>
+                                <p className="font-semibold">{dietPlan?.title}</p>
                             </div>
 
                             <div>
                                 <p className="text-sm text-gray-500">Level</p>
-                                <p className="font-semibold capitalize">{workoutPlan?.level}</p>
+                                <p className="font-semibold capitalize">{dietPlan?.level}</p>
                             </div>
                         </div>
                         <div>
                             <h4 className="font-semibold text-lg mb-3">
-                                Exercises
+                                Meals
                             </h4>
-                            {workoutPlan?.days?.length > 0 ? (
+                            {dietPlan?.days?.length > 0 ? (
                                 <>
                                     <Accordion variant="shadow" >
-                                        {workoutPlan.days.map((day, index) => (
+                                        {dietPlan.days.map((day, index) => (
                                             <AccordionItem
                                                 key={day.id || index}
-                                                aria-label={day.title}
+                                                aria-label={day.day_name}
                                                 className="p-2"
                                                 title={
                                                     <div className="flex justify-between items-center w-full">
-                                                        <span>{day.title}</span>
+                                                        <span>{day.day_name}</span>
                                                         <div className="flex gap-2">
 
                                                         
@@ -401,7 +399,7 @@ export default function ShowWorkoutPlan() {
                                                             size="sm"
                                                             color="warning"
                                                             variant="flat"
-                                                            onPress={() => openExerciseModal(day.id)}
+                                                            onPress={() => openMealModal(day.id)}
                                                         >
                                                             Add
                                                         </Button>
@@ -410,29 +408,23 @@ export default function ShowWorkoutPlan() {
                                                     </div>
                                                 }
                                             >
-                                                {day.exercises?.length > 0 ? (
+                                                {day.meals?.length > 0 ? (
                                                     <Table aria-label="Example static collection table">
                                                         <TableHeader>
-                                                            <TableColumn>EXCERCISE</TableColumn>
-                                                            <TableColumn>SETS</TableColumn>
-                                                            <TableColumn>REPS</TableColumn>
-                                                            <TableColumn>REST</TableColumn>
+                                                            <TableColumn>Food</TableColumn>
+                                                            <TableColumn>Meal Type</TableColumn>
                                                             <TableColumn>ACTIONs</TableColumn>
                                                         </TableHeader>
                                                         <TableBody>
-
-
-                                                            {day.exercises.map((exercise, i) => (
+                                                            {day.meals.map((meal, i) => (
                                                                 <TableRow key="1">
-                                                                    <TableCell>{exercise.exercise_name}</TableCell>
-                                                                    <TableCell>{exercise.sets}</TableCell>
-                                                                    <TableCell>{exercise.reps}</TableCell>
-                                                                    <TableCell>{exercise.rest_time}</TableCell>
+                                                                    <TableCell>{meal.food_name}</TableCell>
+                                                                    <TableCell>{meal.meal_type}</TableCell>
                                                                     <TableCell>
-                                                                        <Tooltip color="danger" content="Delete Workout Plan">
+                                                                        <Tooltip color="danger" content="Delete Diet Plan">
                                                                             <span
                                                                                 className="text-lg text-danger cursor-pointer active:opacity-50"
-                                                                                onClick={() => handleDeleteExercise(exercise.id)}
+                                                                                onClick={() => handleDeleteMeal(meal.id)}
                                                                             >
                                                                                 <DeleteIcon />
                                                                             </span>
@@ -443,7 +435,7 @@ export default function ShowWorkoutPlan() {
                                                         </TableBody>
                                                     </Table>
                                                 ) : (
-                                                    <p className="text-gray-400">No exercises added.</p>
+                                                    <p className="text-gray-400">No Meals added.</p>
                                                 )}
                                             </AccordionItem>
                                         ))}
@@ -453,44 +445,19 @@ export default function ShowWorkoutPlan() {
                                 <p className="text-gray-400">No Days added.</p>
                             )}
                         </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex justify-end gap-3 pt-4">
-                            <Button
-                                variant="flat"
-                                onPress={() => navigate("/admin/workout-plans")}
-                            >
-                                Back
-                            </Button>
-
-                            <Button
-                                color="warning"
-                                onPress={() =>
-                                    navigate(`/admin/workout-plans/update/${workoutPlan?.id}`)
-                                }
-                            >
-                                Update Plan
-                            </Button>
-                        </div>
                     </CardBody>
                 </Card>
             </div>
             <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
                 <ModalContent>
-                    <ModalHeader>Add Workout Day</ModalHeader>
+                    <ModalHeader>Add Diet Plan Day</ModalHeader>
 
                     <ModalBody>
                         <Input
                             label="Day Name"
                             placeholder="Enter Day"
-                            value={dayTitle}
-                            onChange={(e) => setDayTitle(e.target.value)}
-                        />
-                        <Input
-                            label="Day Number"
-                            placeholder="Enter Day Number"
-                            value={dayNumber}
-                            onChange={(e) => setDayNumber(e.target.value)}
+                            value={dayName}
+                            onChange={(e) => setDayName(e.target.value)}
                         />
                     </ModalBody>
 
@@ -510,47 +477,42 @@ export default function ShowWorkoutPlan() {
                 </ModalContent>
             </Modal>
             <Modal
-                isOpen={isExerciseModalOpen}
-                onClose={() => setIsExerciseModalOpen(false)}
+                isOpen={isMealModalOpen}
+                onClose={() => setIsMealModalOpen(false)}
             >
                 <ModalContent>
-                    <ModalHeader>Add Exercise</ModalHeader>
-
+                    <ModalHeader>Add Meal</ModalHeader>
                     <ModalBody className="space-y-4">
                         <Input
-                            label="Exercise Name"
-                            placeholder="Enter Exercise Name"
-                            value={exerciseName}
-                            onChange={(e) => setExerciseName(e.target.value)}
+                            label="Food Name"
+                            placeholder="Enter Food Name"
+                            value={foodName}
+                            onChange={(e) => setFoodName(e.target.value)}
                         />
-
                         <Input
-                            label="Sets"
-                            placeholder="Enter Sets"
-                            type="number"
-                            value={sets}
-                            onChange={(e) => setSets(e.target.value)}
+                            label="Meal Type"
+                            placeholder="Enter Meal Type"
+                            value={mealType}
+                            onChange={(e) => setMealType(e.target.value)}
                         />
-
                         <Input
-                            label="Reps"
-                            placeholder="Enter Reps"
-                            value={reps}
-                            onChange={(e) => setReps(e.target.value)}
+                            label="Quantity"
+                            placeholder="Enter Quantity"
+                            value={quantity}
+                            onChange={(e) => setQuantity(e.target.value)}
                         />
-
                         <Input
-                            label="Rest Time (seconds)"
-                            type="number"
-                            value={restTime}
-                            onChange={(e) => setRestTime(e.target.value)}
+                            label="Calories"
+                            placeholder="Enter Calories"
+                            value={calories}
+                            onChange={(e) => setCalories(e.target.value)}
                         />
                     </ModalBody>
 
                     <ModalFooter>
                         <Button
                             variant="flat"
-                            onPress={() => setIsExerciseModalOpen(false)}
+                            onPress={() => setIsMealModalOpen(false)}
                         >
                             Cancel
                         </Button>
@@ -558,9 +520,9 @@ export default function ShowWorkoutPlan() {
                         <Button
                             color="warning"
                             isLoading={loading}
-                            onPress={handleAddExercise}
+                            onPress={handleAddMeal}
                         >
-                            Add Exercise
+                            Add Meal
                         </Button>
                     </ModalFooter>
                 </ModalContent>

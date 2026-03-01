@@ -14,6 +14,9 @@ import WorkoutPlanList from "./pages/admin/workout-plans/workoutPlanList";
 import ViewUser from "./pages/admin/users/viewUser";
 import UpdateWorkoutPlan from "./pages/admin/workout-plans/updateWorkoutPlan";
 import ShowWorkoutPlan from "./pages/admin/workout-plans/showWorkoutPlan";
+import DietPlanList from "./pages/admin/diet-plans/dietPlanList";
+import ShowDietPlan from "./pages/admin/diet-plans/showDietPlan";
+
 
 function App() {
   return (
@@ -29,6 +32,8 @@ function App() {
       <Route element={<AdminProtectedRoute><WorkoutPlanList /></AdminProtectedRoute>} path="/admin/workout-plans" />
       <Route element={<AdminProtectedRoute><UpdateWorkoutPlan /></AdminProtectedRoute>} path="/admin/workout-plans/update/:id" />
       <Route element={<AdminProtectedRoute><ShowWorkoutPlan /></AdminProtectedRoute>} path="/admin/workout-plans/show/:id" />
+      <Route element={<AdminProtectedRoute><DietPlanList /></AdminProtectedRoute>} path="/admin/diet-plans" />
+      <Route element={<AdminProtectedRoute><ShowDietPlan /></AdminProtectedRoute>} path="/admin/diet-plans/show/:id" />
     </Routes>
   );
 }

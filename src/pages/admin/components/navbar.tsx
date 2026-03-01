@@ -43,6 +43,7 @@ export default function AdminNavbarComponent(currentPage) {
     const navigate = useNavigate();
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [user, setUser] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         fetchUser();
@@ -75,6 +76,7 @@ export default function AdminNavbarComponent(currentPage) {
                 last_name: res.data.lname || "",
                 profile_img: null,
             });
+            setIsLoading(false);
         } catch (error) {
             console.error("Error fetching user:", error);
         }
@@ -275,6 +277,15 @@ export default function AdminNavbarComponent(currentPage) {
                             Workout Plan
                         </Link>
                     </NavbarItem>
+                    <NavbarItem isActive={location.pathname === "/admin/workout-plans"}>
+                        <Link
+                            as="button"
+                            color={location.pathname === "/admin/diet-plans" ? "warning" : "foreground"}
+                            onClick={() => navigate("/admin/diet-plans")}
+                        >
+                            Diet Plan
+                        </Link>
+                    </NavbarItem>
                     <NavbarItem isActive={location.pathname === "/admin/membership-plans"}>
                         <Link
                             as="button"
@@ -296,21 +307,32 @@ export default function AdminNavbarComponent(currentPage) {
                         radius="sm"
                     >
                         <DropdownTrigger>
-                            <User
-                                avatarProps={{
-                                    src: `${user?.profile_img
-                                        ? `${API_BASE_URL}/storage/users/profile_images/${user.profile_img}`
-                                        : "/profile.png"
-                                        }`,
-                                }}
-                                name={
-                                    user
-                                        ? `${user.fname} ${user.lname}`
-                                        : <Skeleton className="h-3 w-3/5 rounded-lg" />
-                                }
-                                description={"Admin"}
-                                className="cursor-pointer"
-                            />
+                            {isLoading ? (
+                                <div className="flex items-center gap-3">
+                                    <Skeleton className="w-10 h-10 rounded-full" />
+                                    <div className="flex flex-col">
+
+                                    <Skeleton className="w-24 h-4 rounded-md" />
+                                    <Skeleton className="w-10 h-2 rounded-md mt-2" />
+                                    </div>
+                                </div>
+                            ) : (
+                                <User
+                                    avatarProps={{
+                                        src: `${user?.profile_img
+                                            ? `${API_BASE_URL}/storage/users/profile_images/${user.profile_img}`
+                                            : "/profile.png"
+                                            }`,
+                                    }}
+                                    name={
+                                        user
+                                            ? `${user.fname} ${user.lname}`
+                                            : <Skeleton className="h-3 w-3/5 rounded-lg" />
+                                    }
+                                    description={"Admin"}
+                                    className="cursor-pointer"
+                                /> 
+                                )}
                         </DropdownTrigger>
                         <DropdownMenu
                             aria-label="Custom item styles"

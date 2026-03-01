@@ -6,16 +6,9 @@ import {
     TableRow,
     TableCell,
 } from "@heroui/table";
-import {
-    DropdownTrigger,
-    Dropdown,
-    DropdownMenu,
-    DropdownItem,
-} from "@heroui/dropdown";
 import { Chip } from "@heroui/chip";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
-import { User } from "@heroui/user";
 import { Pagination } from "@heroui/pagination";
 import { useState, useMemo, useCallback } from "react";
 import { ChevronDown, Delete, Edit, Eye, EyeClosed, PencilLine, Plus, Search, Trash2, } from "lucide-react";
@@ -155,23 +148,18 @@ export const EditIcon = (props) => {
         </svg>
     );
 };
-export default function UsersListComponent() {
+export default function DietPlanListComponent() {
     const navigate = useNavigate();
-    const [users, setUsers] = useState([]);
-    const [selectedKeys, setSelectedKeys] = useState(new Set([]));
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const [dietPlans, setDietPlans] = useState([]);
     const [isVisible, setIsVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [title, setTitle] = useState("");
+    const [level, setLevel] = useState("");
+    const [goal, setGoal] = useState("");
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    
 
     const toggleVisibility = () => setIsVisible(!isVisible);
-
-    const [formData, setFormData] = useState({
-        first_name: "",
-        last_name: "",
-        email: "",
-        password: "",
-        role: "member",
-    });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -179,39 +167,37 @@ export default function UsersListComponent() {
     const [page, setPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(5);
 
-    const pages = Math.max(1, Math.ceil(users.length / rowsPerPage));
+    const pages = Math.max(1, Math.ceil(dietPlans.length / rowsPerPage));
 
     const items = useMemo(() => {
         const start = (page - 1) * rowsPerPage;
         const end = start + rowsPerPage;
 
-        return users.slice(start, end);
-    }, [page, users, rowsPerPage]);
+        return dietPlans.slice(start, end);
+    }, [page, dietPlans, rowsPerPage]);
+
     useEffect(() => {
         if (page > pages) {
             setPage(1);
         }
-    }, [users, pages]);
+    }, [dietPlans, pages]);
 
     const onRowsPerPageChange = useCallback((e) => {
         setRowsPerPage(Number(e.target.value));
         setPage(1);
     }, []);
-    // Pagination
 
-
-
-    // Fetch users API Call 
+    // Fetch Diet Plans API Call 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     useEffect(() => {
-        fetchUsers();
+        fetchDietPlans();
     }, []);
-    const fetchUsers = async () => {
+    const fetchDietPlans = async () => {
         try {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
             const response = await fetch(
-                `${API_BASE_URL}/api/admin/users/list`,
+                `${API_BASE_URL}/api/admin/diet-plans/list`,
                 {
                     method: "GET",
                     headers: {
@@ -220,87 +206,63 @@ export default function UsersListComponent() {
                 }
             );
             const res = await response.json();
-            setUsers(res.data);
+            setDietPlans(res.data);
             setIsLoading(false);
         } catch (error) {
-            console.error("Error fetching user:", error);
+            // console.error("Error fetching diet plan:", error);
         }
     };
-
-
-    const generatePassword = () => {
-        const chars =
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!";
-        let password = "";
-        for (let i = 0; i < 10; i++) {
-            password += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-
-        setFormData((prev) => ({
-            ...prev,
-            password,
-        }));
-    };
-    const handleChange = (field, value) => {
-        setFormData((prev) => ({
-            ...prev,
-            [field]: value,
-        }));
-    };
-    const handleAddUser = async (onClose) => {
+    const handleAddDietPlan = async (onClose) => {
         try {
-            setIsSubmitting(true);
+            setIsLoading(true);
 
-            const token =
-                localStorage.getItem("token") ||
-                sessionStorage.getItem("token");
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
             const response = await fetch(
-                `${API_BASE_URL}/api/admin/users/store`,
+                `${API_BASE_URL}/api/admin/diet-plans/store`,
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
                     },
-                    body: JSON.stringify(formData),
+                    body: JSON.stringify({
+                        title: title,
+                        level: level,
+                        goal: goal,
+                    }),
                 }
             );
 
             const res = await response.json();
 
             if (res.status === true) {
+
+                // Refresh table
+                fetchDietPlans();
+
+                // Reset form
+                setTitle("");
+                setLevel("");
+                setGoal("");
+
                 addToast({
-                    title: "User Added",
-                    description: "New user added successfully",
+                    title: "Added Successfully",
+                    description: "Diet Plan Added successfully",
                     variant: "flat",
                     color: "warning",
                 });
-            }
 
-            if (!response.ok) {
+                // Close modal
+                onClose();
+            } else {
                 addToast({
                     title: "Error",
                     description: "Something went wrong",
                     variant: "flat",
                     color: "danger",
                 });
-                return;
             }
-
-            // Refresh users list
-            fetchUsers();
-
-            // Reset form
-            setFormData({
-                first_name: "",
-                last_name: "",
-                email: "",
-                password: "",
-                role: "member",
-            });
-
-            onClose();
         } catch (error) {
             addToast({
                 title: "Error",
@@ -308,17 +270,15 @@ export default function UsersListComponent() {
                 variant: "flat",
                 color: "danger",
             });
-        } finally {
-            setIsSubmitting(false);
         }
     };
-    const handleDeleteUser = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this user?")) return;
+    const handleDeleteDietPlan = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this Diet Plan?")) return;
 
         try {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
-            const response = await fetch(`${API_BASE_URL}/api/admin/users/destroy/${id}`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/diet-plans/destroy/${id}`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -329,13 +289,12 @@ export default function UsersListComponent() {
 
             if (res.status === true) {
                 addToast({
-                    title: "User Deleted!",
-                    description: "User deleted successfully..",
+                    title: "Diet Plan Deleted!",
+                    description: "Diet Plan deleted successfully..",
                     variant: "flat",
                     color: "warning",
                 });
-                // Refresh users list
-                fetchUsers();
+                fetchDietPlans();
             } else {
                 addToast({
                     title: "Error",
@@ -361,7 +320,7 @@ export default function UsersListComponent() {
                     
                 </div>
                 <div className="flex gap-4">
-                    <Button color="warning" startContent={<Plus size={20} strokeWidth={1} />} onPress={onOpen}>Add User</Button>
+                    <Button color="warning" startContent={<Plus size={20} strokeWidth={1} />} onPress={onOpen} >Add Diet Plan</Button>
                 </div>
             </div>
         );
@@ -372,7 +331,7 @@ export default function UsersListComponent() {
     const bottomContent = (
         <div className="py-2 px-2 flex justify-between items-center">
             <span className="text-default-400 text-small">
-                Total {users.length} users
+                Total {dietPlans.length} Diet Plans
             </span>
             <div>
                 {!isLoading && (
@@ -395,7 +354,7 @@ export default function UsersListComponent() {
             <div className="m-4 p-5">
                 <Table
                     isHeaderSticky
-                    aria-label="Admin Users Table"
+                    aria-label="Admin Diet Plan Table"
                     bottomContent={bottomContent}
                     bottomContentPlacement="outside"
                     topContent={topContent}
@@ -403,15 +362,15 @@ export default function UsersListComponent() {
                 >
                     <TableHeader >
                         <TableColumn>ID</TableColumn>
-                        <TableColumn>NAME</TableColumn>
-                        <TableColumn>EMAIL</TableColumn>
-                        <TableColumn>MEMBERSHIP</TableColumn>
+                        <TableColumn>TITLE</TableColumn>
+                        <TableColumn>GOAL</TableColumn>
+                        <TableColumn>LEVEL</TableColumn>
                         <TableColumn>REGISTERED AT</TableColumn>
                         <TableColumn>ACTIONS</TableColumn>
                     </TableHeader>
 
                     <TableBody
-                        emptyContent={"No users found"}
+                        emptyContent={"No Diet Plan found"}
                         items={items}
                         isLoading={isLoading}
                         loadingContent={<Spinner label="Loading..." />}
@@ -419,31 +378,14 @@ export default function UsersListComponent() {
                         {(item) => (
                             <TableRow key={item.id}>
                                 <TableCell>#{item.id}</TableCell>
-                                <TableCell>
-                                    <User
-                                        avatarProps={{
-                                            radius: "lg",
-                                            src: `${API_BASE_URL}/storage/users/profile_images/${item.profile_img}`,
-                                            name: `${item.fname} ${item.lname}`,
-                                            showFallback: true
-                                        }}
-                                        description={item.role === "admin" ? "Admin" : "Member"}
-                                        name={`${item.fname} ${item.lname}`}
-                                    />
+                                <TableCell >
+                                    {item.title}
                                 </TableCell>
-                                <TableCell>
-                                    {item.email}
+                                <TableCell className="capitalize">
+                                    {item.goal}
                                 </TableCell>
-                                <TableCell>
-                                    {item.active_membership?.status === "active" ? (
-                                        <Chip color="warning" variant="flat">
-                                            Active
-                                        </Chip>
-                                    ) : (
-                                        <Chip color="danger" variant="flat">
-                                            Inactive
-                                        </Chip>
-                                    )}
+                                <TableCell className="capitalize">
+                                    {item.level}
                                 </TableCell>
                                 <TableCell>
                                     {
@@ -458,20 +400,21 @@ export default function UsersListComponent() {
                                     <div className="relative flex items-center gap-2">
                                         <Tooltip content="Details">
                                             <span className="text-lg text-default-400 cursor-pointer active:opacity-50"
-                                                onClick={() => navigate(`/admin/users/view/${item.id}`)}
+                                                onClick={() => navigate(`/admin/diet-plans/show/${item.id}`)}
                                             >
                                                 <EyeIcon />
                                             </span>
                                         </Tooltip>
-                                        <Tooltip content="Edit user">
-                                            <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                                        <Tooltip content="Edit Diet Plan">
+                                            <span className="text-lg text-default-400 cursor-pointer active:opacity-50"
+                                            >
                                                 <EditIcon />
                                             </span>
                                         </Tooltip>
-                                        <Tooltip color="danger" content="Delete user">
+                                        <Tooltip color="danger" content="Delete Diet Plan">
                                             <span
                                                 className="text-lg text-danger cursor-pointer active:opacity-50"
-                                                onClick={() => handleDeleteUser(item.id)}
+                                                onClick={() => handleDeleteDietPlan(item.id)}
                                             >
                                                 <DeleteIcon />
                                             </span>
@@ -487,85 +430,39 @@ export default function UsersListComponent() {
                 <ModalContent>
                     {(onClose) => (
                         <>
-                            <ModalHeader className="flex flex-col gap-1">Add New User</ModalHeader>
+                            <ModalHeader className="flex flex-col gap-1">Add Diet Plan</ModalHeader>
                             <ModalBody>
                                 <div className="grid grid-cols-12 gap-4">
-                                    <div className="col-span-12 md:col-span-6">
-                                        <Input
-                                            variant="flat"
-                                            label="First Name"
-                                            isRequired
-                                            value={formData.first_name}
-                                            onValueChange={(value) =>
-                                                handleChange("first_name", value)
-                                            }
-                                        />
-                                    </div>
-
-                                    <div className="col-span-12 md:col-span-6">
-                                        <Input
-                                            variant="flat"
-                                            label="Last Name"
-                                            isRequired
-                                            value={formData.last_name}
-                                            onValueChange={(value) =>
-                                                handleChange("last_name", value)
-                                            }
-                                        />
-                                    </div>
-
                                     <div className="col-span-12">
-
-
                                         <Input
-                                            label="Email"
-                                            type="email"
+                                            label="Title"
                                             variant="flat"
+                                            value={title}
+                                            onChange={(e) => setTitle(e.target.value)}
                                             isRequired
-                                            value={formData.email}
-                                            onValueChange={(value) =>
-                                                handleChange("email", value)
-                                            }
                                         />
                                     </div>
                                     <div className="col-span-12">
-                                        <div className="flex flex-col ">
-                                            <Input
-                                                label="Password"
-                                                variant="flat"
-                                                isRequired
-                                                value={formData.password}
-                                                onValueChange={(value) =>
-                                                    handleChange("password", value)
-                                                }
-                                                type={isVisible ? "text" : "password"}
-                                                endContent={
-                                                    <button
-                                                        aria-label="toggle password visibility"
-                                                        className="focus:outline-solid outline-transparent"
-                                                        type="button"
-                                                        onClick={toggleVisibility}
-
-                                                    >
-                                                        {isVisible ? (
-                                                            <EyeClosed className="text-2xl text-default-400 cursor-pointer" />
-                                                        ) : (
-                                                            <Eye className="text-2xl text-default-400 cursor-pointer" />
-                                                        )}
-                                                    </button>
-                                                }
-                                            />
-                                        </div>
+                                        <Select selectedKeys={level ? [level] : []}
+                                            onSelectionChange={(keys) => {
+                                                const selected = Array.from(keys)[0];
+                                                setLevel(selected);
+                                            }} className="" label="Select Level" isRequired>
+                                            <SelectItem key="beginner">Beginner</SelectItem>
+                                            <SelectItem key="intermediate">Intermediate</SelectItem>
+                                            <SelectItem key="advanced">Advanced</SelectItem>
+                                        </Select>
                                     </div>
                                     <div className="col-span-12">
-                                        <Button
-                                            onPress={generatePassword}
-                                            color="warning"
-                                            variant="flat"
-                                            className="cursor-pointer w-full"
-                                        >
-                                            Generate
-                                        </Button>
+                                        <Select selectedKeys={goal ? [goal] : []}
+                                            onSelectionChange={(keys) => {
+                                                const selected = Array.from(keys)[0];
+                                                setGoal(selected);
+                                            }} className="" label="Select Goal" isRequired>
+                                            <SelectItem key="weight_loss">Weight Loss</SelectItem>
+                                            <SelectItem key="weight_gain">Weight Gain</SelectItem>
+                                            <SelectItem key="maintenance">Maintenance</SelectItem>
+                                        </Select>
                                     </div>
                                 </div>
                             </ModalBody>
@@ -575,10 +472,9 @@ export default function UsersListComponent() {
                                 </Button>
                                 <Button
                                     color="warning"
-                                    isLoading={isSubmitting}
-                                    onPress={() => handleAddUser(onClose)}
+                                    onPress={() => handleAddDietPlan(onClose)}
                                 >
-                                    Add User
+                                    Add
                                 </Button>
                             </ModalFooter>
                         </>
