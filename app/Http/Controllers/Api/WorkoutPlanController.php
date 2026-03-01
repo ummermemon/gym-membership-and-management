@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\WorkoutPlan;
 use App\Models\WorkoutDay;
 use App\Models\WorkoutDayExercise;
+use Illuminate\Support\Facades\DB;
+
 
 
 class WorkoutPlanController extends Controller
@@ -173,6 +175,37 @@ class WorkoutPlanController extends Controller
             'status' => true,
             'message' => 'Workout Plan Updated',
             'data' => $plan
+        ]);
+    }
+
+    public function assignToUser(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation errors',
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $plan = WorkoutPlan::findOrFail($id);
+
+        $delete = DB::table('user_workout_plans')->where('user_id', $request->user_id)->where('workout_plan_id', $id)->delete();
+
+        $plan->users()->attach($request->user_id, [
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Workout Plan Assigned Successfully'
         ]);
     }
     

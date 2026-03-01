@@ -39,6 +39,8 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/show/{id}', [WorkoutPlanController::class, 'show']);
             Route::post('/update/{id}', [WorkoutPlanController::class, 'update']);
             Route::get('/destroy/{id}', [WorkoutPlanController::class, 'destroy']);
+
+            Route::post('/{id}/assign', [WorkoutPlanController::class, 'assignToUser']);
             
             Route::post('/{id}/add-days', [WorkoutPlanController::class, 'addDay']);
             Route::get('/destroy-day/{id}', [WorkoutPlanController::class, 'destroyDay']);

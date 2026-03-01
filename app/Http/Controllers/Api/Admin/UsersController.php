@@ -58,7 +58,13 @@ class UsersController extends Controller
     }
     public function view(Request $request, $id)
     {
-        $user = User::with(['activeMembership', 'memberships'])->where('id', $id)->get();
+        // $user = User::with(['activeMembership', 'memberships'])->where('id', $id)->get();
+        $user = User::with([
+            'activeMembership',
+            'memberships',
+            'activeWorkoutPlan.days.exercises'
+        ])->find($id);
+
         return response()->json([
             'status' => true,
             'message' => 'User Fetch Successfully',

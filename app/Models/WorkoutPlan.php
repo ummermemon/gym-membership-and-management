@@ -16,4 +16,10 @@ class WorkoutPlan extends Model
     {
         return $this->hasMany(WorkoutDay::class);
     }
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_workout_plans')
+                    ->withPivot('start_date', 'end_date')
+                    ->withTimestamps();
+    }
 }
