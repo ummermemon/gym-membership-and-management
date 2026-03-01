@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\DietPlan;
 use App\Models\DietPlanDay;
 use App\Models\DietPlanMeal;
+use App\Models\DietPlanAssignment;
 
 
 
@@ -170,4 +171,39 @@ class DietPlanController extends Controller
             'data' => $plan
         ]);
     }
+
+    public function assignToUser(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
+            'diet_plan_id' => 'required|exists:diet_plans,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation errors',
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        // Deactivate previous active plan
+    DietPlanAssignment::where('user_id', $request->user_id)
+        ->where('is_active', true)
+        ->update(['is_active' => false]);
+
+    // Create new active assignment
+    $assignment = DietPlanAssignment::create([
+        'user_id' => $request->user_id,
+        'diet_plan_id' => $request->diet_plan_id,
+        'is_active' => true
+    ]);
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Diet plan assigned successfully'
+    ]);
+    }
+
+    
 }

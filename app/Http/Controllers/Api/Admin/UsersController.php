@@ -62,6 +62,7 @@ class UsersController extends Controller
         $user = User::with([
             'activeMembership',
             'memberships',
+            'activeDietPlan',
             'activeWorkoutPlan.days.exercises'
         ])->find($id);
 

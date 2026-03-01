@@ -50,6 +50,16 @@ class User extends Authenticatable
                     ->orWhere('user_workout_plans.end_date', '>=', now());
             });
     }
+    public function dietAssignments()
+{
+    return $this->hasMany(DietPlanAssignment::class);
+}
+public function activeDietPlan()
+{
+    return $this->hasOne(DietPlanAssignment::class)
+        ->where('is_active', true)
+        ->with('dietPlan.days.meals');
+}
 
     /**
      * The attributes that should be hidden for serialization.

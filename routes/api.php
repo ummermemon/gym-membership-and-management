@@ -62,7 +62,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/day/{id}/add-meal', [DietPlanController::class, 'addMeal']);
             Route::get('/meal/{id}', [DietPlanController::class, 'deleteMeal']);
 
-            // Route::post('/assign', [DietPlanController::class, 'assignToUser']);
+            Route::post('/assign', [DietPlanController::class, 'assignToUser']);
         });
 
         Route::prefix('users')->group(function () {
