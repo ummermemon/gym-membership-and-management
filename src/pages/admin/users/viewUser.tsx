@@ -42,6 +42,90 @@ export default function ViewUser() {
     const [assignedWorkout, setAssignedWorkout] = useState(null);
     const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false);
     const [selectedWorkoutPlan, setSelectedWorkoutPlan] = useState(null);
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+
+    useEffect(() => {
+        fetchWorkoutPlans();
+    }, []);
+
+    const fetchWorkoutPlans = async () => {
+        try {
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/workout-plans/list`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (data.status) {
+                setWorkoutPlans(data.data);
+            }
+
+        } catch (error) {
+            console.error("Error fetching workout plans:", error);
+        }
+    };
+
+    const handleAssignWorkout = async () => {
+        try {
+            if (!selectedWorkoutPlan || !startDate || !endDate) {
+                addToast({
+                    title: "All fields required",
+                    color: "warning",
+                });
+                return;
+            }
+
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+
+            const formData = new FormData();
+            formData.append("user_id", user.id);
+            formData.append("start_date", startDate);
+            formData.append("end_date", endDate);
+
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/workout-plans/${selectedWorkoutPlan}/assign`,
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: formData,
+                }
+            );
+
+            const data = await response.json();
+
+            if (data.status) {
+                addToast({
+                    title: "Workout Assigned Successfully",
+                    color: "warning",
+                });
+
+                setIsWorkoutModalOpen(false);
+                setSelectedWorkoutPlan(null);
+                setStartDate("");
+                setEndDate("");
+
+                fetchUser(); // refresh page data
+            } else {
+                addToast({
+                    title: "Assignment Failed",
+                    color: "danger",
+                });
+            }
+
+        } catch (error) {
+            console.error("Assign error:", error);
+        }
+    };
 
     useEffect(() => {
         fetchUser();
@@ -61,10 +145,23 @@ export default function ViewUser() {
                     },
                 }
             );
+
             const res = await response.json();
-            setUser(res.user[0]);
-            setMemberships(res.user[0].memberships || []);
+
+            const userData = res.user;   // ✅ not array
+
+            setUser(userData);
+            setMemberships(userData.memberships || []);
+
+            // 👇 extract active workout
+            if (userData.active_workout_plan?.length > 0) {
+                setAssignedWorkout(userData.active_workout_plan[0]);
+            } else {
+                setAssignedWorkout(null);
+            }
+
             setIsLoading(false);
+
         } catch (error) {
             console.error("Error fetching user:", error);
         }
@@ -465,10 +562,62 @@ export default function ViewUser() {
                     </Tab>
                     <Tab key="workoutPlan" title="Workout Plan">
                         <Card>
+                            <CardHeader className="flex justify-between items-center">
+                                <h3 className="font-semibold text-lg">Assigned Workout Plan</h3>
+
+                                <Button
+                                    size="sm"
+                                    color="warning"
+                                    variant="flat"
+                                    onClick={() => setIsWorkoutModalOpen(true)}
+                                >
+                                    Assign / Change
+                                </Button>
+                            </CardHeader>
+
                             <CardBody>
-                                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-                                ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-                                cillum dolore eu fugiat nulla pariatur.
+
+                                {!assignedWorkout ? (
+                                    <p className="text-gray-500 text-center">
+                                        No workout plan assigned.
+                                    </p>
+                                ) : (
+                                    <>
+                                        <div className="mb-4">
+                                            <h4 className="text-xl font-semibold text-warning-500">
+                                                {assignedWorkout.title}
+                                            </h4>
+
+                                            <div className="flex gap-4 text-sm mt-2">
+                                                <span>
+                                                    Start: {assignedWorkout.pivot?.start_date}
+                                                </span>
+                                                <span>
+                                                    End: {assignedWorkout.pivot?.end_date}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <Accordion variant="splitted">
+                                            {assignedWorkout.days?.map((day) => (
+                                                <AccordionItem key={day.id} title={day.title}>
+                                                    {day.exercises.map((ex) => (
+                                                        <div
+                                                            key={ex.id}
+                                                            className="flex justify-between py-2 text-sm"
+                                                        >
+                                                            <span>{ex.exercise_name}</span>
+                                                            <span>
+                                                                {ex.sets} x {ex.reps} | Rest: {ex.rest_time}s
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </AccordionItem>
+                                            ))}
+                                        </Accordion>
+                                    </>
+                                )}
+
                             </CardBody>
                         </Card>
                     </Tab>
@@ -484,32 +633,61 @@ export default function ViewUser() {
 
 
             </div>
-            <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+            <Modal
+                isOpen={isWorkoutModalOpen}
+                onClose={() => setIsWorkoutModalOpen(false)}
+            >
                 <ModalContent>
-                    <ModalHeader>Assign Membership</ModalHeader>
-                    <ModalBody>
+                    <ModalHeader>Assign Workout Plan</ModalHeader>
+
+                    <ModalBody className="space-y-4">
 
                         <Select
-                            label="Select Plan"
-                            placeholder="Choose a membership plan"
+                            label="Select Workout Plan"
                             selectedKeys={
-                                selectedPlan !== null ? new Set([String(selectedPlan)]) : new Set()
+                                selectedWorkoutPlan
+                                    ? new Set([String(selectedWorkoutPlan)])
+                                    : new Set()
                             }
                             onSelectionChange={(keys) => {
                                 const value = Array.from(keys)[0];
-                                setSelectedPlan(Number(value));
+                                setSelectedWorkoutPlan(Number(value));
                             }}
                         >
-                            {plans.map((plan) => (
+                            {workoutPlans.map((plan) => (
                                 <SelectItem key={String(plan.id)}>
-                                    {plan.name} - ₹{plan.price}
+                                    {plan.title}
                                 </SelectItem>
                             ))}
                         </Select>
 
+                        <div>
+                            <label className="text-sm text-gray-500">Start Date</label>
+                            <input
+                                type="date"
+                                className="w-full border rounded-md p-2 mt-1"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-sm text-gray-500">End Date</label>
+                            <input
+                                type="date"
+                                className="w-full border rounded-md p-2 mt-1"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                            />
+                        </div>
+
                     </ModalBody>
+
                     <ModalFooter>
-                        <Button color="warning" onClick={handleAssign}>
+                        <Button
+                            color="warning"
+                            onClick={handleAssignWorkout}
+                        >
                             Assign
                         </Button>
                     </ModalFooter>
