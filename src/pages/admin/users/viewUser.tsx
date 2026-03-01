@@ -45,6 +45,13 @@ export default function ViewUser() {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
 
+    const [dietPlans, setDietPlans] = useState([]);
+    const [assignedDiet, setAssignedDiet] = useState(null);
+    const [isDietModalOpen, setIsDietModalOpen] = useState(false);
+    const [selectedDietPlan, setSelectedDietPlan] = useState(null);
+    const [isDietLoading, setIsDietLoading] = useState(false);
+
+
     useEffect(() => {
         fetchWorkoutPlans();
     }, []);
@@ -160,6 +167,12 @@ export default function ViewUser() {
                 setAssignedWorkout(null);
             }
 
+            if (userData.active_diet_plan) {
+                setAssignedDiet(userData.active_diet_plan);
+            } else {
+                setAssignedDiet(null);
+            }
+
             setIsLoading(false);
 
         } catch (error) {
@@ -205,6 +218,37 @@ export default function ViewUser() {
             // console.error("Error fetching mp:", error);
         }
     };
+    const fetchDietPlans = async () => {
+        try {
+            setIsDietLoading(true);
+
+            const token =
+                localStorage.getItem("token") ||
+                sessionStorage.getItem("token");
+
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/diet-plans/list`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (data.status) {
+                setDietPlans(data.data);
+            } else {
+                setDietPlans([]);
+            }
+
+        } catch (error) {
+            console.error("Error fetching diet plans:", error);
+        } finally {
+            setIsDietLoading(false);
+        }
+    };
     const handleAssign = async () => {
         try {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -243,6 +287,63 @@ export default function ViewUser() {
 
         } catch (error) {
             // console.error(error);
+        }
+    };
+    const handleAssignDiet = async () => {
+        try {
+            if (!selectedDietPlan) {
+                addToast({
+                    title: "Please select diet plan",
+                    color: "warning",
+                });
+                return;
+            }
+
+            const token =
+                localStorage.getItem("token") ||
+                sessionStorage.getItem("token");
+
+            const formData = new FormData();
+            formData.append("user_id", user.id);
+            formData.append("diet_plan_id", selectedDietPlan);
+
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/diet-plans/assign`,
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        // ❌ DO NOT add Content-Type manually
+                    },
+                    body: formData,
+                }
+            );
+
+            const data = await response.json();
+
+            if (data.status) {
+                addToast({
+                    title: "Diet Plan Assigned Successfully",
+                    color: "warning",
+                });
+
+                setIsDietModalOpen(false);
+                setSelectedDietPlan(null);
+
+                fetchUser(); // refresh user data
+            } else {
+                addToast({
+                    title: data.message || "Assignment Failed",
+                    color: "danger",
+                });
+            }
+
+        } catch (error) {
+            // console.error("Diet assign error:", error);
+            addToast({
+                title: "Something went wrong",
+                color: "danger",
+            });
         }
     };
 
@@ -623,9 +724,85 @@ export default function ViewUser() {
                     </Tab>
                     <Tab key="dietPlan" title="Diet Plan">
                         <Card>
+                            <CardHeader className="flex justify-between items-center">
+                                <h3 className="font-semibold text-lg">Assigned Diet Plan</h3>
+
+                                <Button
+                                    size="sm"
+                                    color="warning"
+                                    variant="flat"
+                                    onClick={() => {
+                                        fetchDietPlans();
+                                        setIsDietModalOpen(true);
+                                    }}
+                                >
+                                    Assign / Change
+                                </Button>
+                            </CardHeader>
+
                             <CardBody>
-                                Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-                                mollit anim id est laborum.
+
+                                {!assignedDiet ? (
+                                    <p className="text-gray-500 text-center">
+                                        No diet plan assigned.
+                                    </p>
+                                ) : (
+                                    <>
+                                        {/* Plan Info */}
+                                        <div className="mb-4">
+                                            <h4 className="text-xl font-semibold text-warning-500">
+                                                {assignedDiet.diet_plan?.title}
+                                            </h4>
+
+                                            <div className="text-sm text-gray-500 mt-1">
+                                                Goal: {assignedDiet.diet_plan?.goal}
+                                            </div>
+
+                                            {assignedDiet.start_date && (
+                                                <div className="text-sm text-gray-500 mt-1">
+                                                    Start Date: {assignedDiet.start_date}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Days & Meals */}
+                                        <Accordion variant="splitted">
+                                            {assignedDiet.diet_plan?.days?.map((day) => (
+                                                <AccordionItem
+                                                    key={day.id}
+                                                    title={day.day_name}
+                                                >
+                                                    {day.meals.length === 0 ? (
+                                                        <p className="text-gray-400 text-sm">
+                                                            No meals added.
+                                                        </p>
+                                                    ) : (
+                                                        day.meals.map((meal) => (
+                                                            <div
+                                                                key={meal.id}
+                                                                className="flex justify-between py-2 text-sm border-b"
+                                                            >
+                                                                <div>
+                                                                    <div className="font-medium">
+                                                                        {meal.meal_type}
+                                                                    </div>
+                                                                    <div className="text-gray-500">
+                                                                        {meal.food_name}
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="text-right text-gray-500">
+                                                                    <div>{meal.quantity}</div>
+                                                                    <div>{meal.calories} kcal</div>
+                                                                </div>
+                                                            </div>
+                                                        ))
+                                                    )}
+                                                </AccordionItem>
+                                            ))}
+                                        </Accordion>
+                                    </>
+                                )}
                             </CardBody>
                         </Card>
                     </Tab>
@@ -687,6 +864,67 @@ export default function ViewUser() {
                         <Button
                             color="warning"
                             onClick={handleAssignWorkout}
+                        >
+                            Assign
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+            <Modal
+                isOpen={isDietModalOpen}
+                onClose={() => {
+                    setIsDietModalOpen(false);
+                    setSelectedDietPlan(null);
+                }}
+            >
+                <ModalContent>
+                    <ModalHeader>Assign Diet Plan</ModalHeader>
+
+                    <ModalBody>
+
+                        {isDietLoading ? (
+                            <p className="text-center text-gray-500">
+                                Loading diet plans...
+                            </p>
+                        ) : (
+                            <Select
+                                label="Select Diet Plan"
+                                placeholder="Choose diet plan"
+                                selectedKeys={
+                                    selectedDietPlan
+                                        ? new Set([String(selectedDietPlan)])
+                                        : new Set()
+                                }
+                                onSelectionChange={(keys) => {
+                                    const value = Array.from(keys)[0];
+                                    setSelectedDietPlan(Number(value));
+                                }}
+                            >
+                                {dietPlans.map((plan) => (
+                                    <SelectItem key={String(plan.id)}>
+                                        {plan.title}
+                                    </SelectItem>
+                                ))}
+                            </Select>
+                        )}
+
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <Button
+                            variant="light"
+                            onClick={() => {
+                                setIsDietModalOpen(false);
+                                setSelectedDietPlan(null);
+                            }}
+                        >
+                            Cancel
+                        </Button>
+
+                        <Button
+                            color="warning"
+                            onClick={handleAssignDiet}
+                            isDisabled={!selectedDietPlan}
                         >
                             Assign
                         </Button>
