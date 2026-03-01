@@ -5,10 +5,10 @@ use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\Admin\MembershipPlanController;
 use App\Http\Controllers\Api\Admin\UsersController;
 use App\Http\Controllers\Api\Admin\UserMembershipController;
+use App\Http\Controllers\Api\Member\MemberWorkoutController;
+use App\Http\Controllers\Api\Member\MemberDietController;
 use App\Http\Controllers\Api\WorkoutPlanController;
 use App\Http\Controllers\Api\DietPlanController;
-
-
 
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
@@ -22,6 +22,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('member')->group(function () {
         Route::post('/edit-profile', [MemberController::class, 'editProfile']);
         Route::post('/change-password', [MemberController::class, 'changePassword']);
+
+        Route::get('workout-plans/view', [MemberWorkoutController::class, 'viewWorkoutPlan']);
+
+        Route::get('diet-plans/view', [MemberDietController::class, 'viewDietPlan']);
     });
 
     Route::prefix('admin')->group(function () {
