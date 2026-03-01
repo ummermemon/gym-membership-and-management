@@ -9,7 +9,6 @@ import {
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/navbar";
 import { Link } from "@heroui/link";
 import { Button } from "@heroui/button";
-import { ChevronDown } from 'lucide-react';
 import { ThemeSwitch } from "@/components/theme-switch";
 import { Image } from "@heroui/image";
 import { useEffect, useState } from "react";
@@ -22,13 +21,13 @@ import {
     ModalBody,
     ModalFooter
 } from "@heroui/modal";
-import { Skeleton } from "@heroui/react";
+import { Divider, Skeleton } from "@heroui/react";
 
 import { Input } from "@heroui/input";
-import { Checkbox } from "@heroui/checkbox";
 import { useDisclosure } from "@heroui/modal";
 import { Avatar } from "@heroui/avatar";
-import { addToast, ToastProvider } from "@heroui/toast";
+import { addToast } from "@heroui/toast";
+import { Dumbbell } from "lucide-react";
 
 
 
@@ -233,7 +232,7 @@ export default function MemberNavbarComponent() {
 
     return (
         <>
-            <Navbar className="border-b py-5" maxWidth="full">
+            <Navbar className="py-5" maxWidth="full">
                 <NavbarBrand className="justify-start">
                     <Image
                         src="/assets/images/logo/logo/black/erased.png"
@@ -244,24 +243,31 @@ export default function MemberNavbarComponent() {
                         className="h-20 hidden dark:block"
                     />
                 </NavbarBrand>
-                <NavbarContent className="hidden sm:flex gap-4" justify="center" >
-                    <NavbarItem isActive>
-                        <NavbarItem isActive={location.pathname === "/member/dashboard"}>
-                            <Link
-                                as="button"
-                                color={location.pathname === "/member/dashboard" ? "warning" : "foreground"}
-                                onClick={() => navigate("/admin/dashboard")}
-                            >
-                                Dashboard
-                            </Link>
-                        </NavbarItem>
+                <NavbarContent className="hidden sm:flex gap-8" justify="center" >
+                    <NavbarItem isActive={location.pathname === "/member/dashboard"}>
+                        <Link
+                            as="button"
+                            color={location.pathname === "/member/dashboard" ? "warning" : "foreground"}
+                            onClick={() => navigate("/member/dashboard")}
+                        >
+                            Dashboard
+                        </Link>
                     </NavbarItem>
-                    <NavbarItem isActive>
+                    <NavbarItem isActive={location.pathname === "/member/workout-plan"}>
+                        <Link
+                            as="button"
+                            color={location.pathname === "/member/workout-plan" ? "warning" : "foreground"}
+                            onClick={() => navigate("/member/workout-plan")}
+                        >
+                           Workout Plan
+                        </Link>
+                    </NavbarItem>
+                    <NavbarItem >
                         <NavbarItem isActive={location.pathname === "/member/diet-plan"}>
                             <Link
                                 as="button"
                                 color={location.pathname === "/member/diet-plan" ? "warning" : "foreground"}
-                                onClick={() => navigate("/admin/diet-plan")}
+                                onClick={() => navigate("/member/diet-plan")}
                             >
                                 Diet Plan
                             </Link>
@@ -346,6 +352,7 @@ export default function MemberNavbarComponent() {
                     </Dropdown>
                 </NavbarContent>
             </Navbar>
+            <Divider />
             <Modal isOpen={isOpen} placement="top-center" onOpenChange={onOpenChange}>
                 <ModalContent>
                     {(onClose) => (

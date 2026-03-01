@@ -16,15 +16,20 @@ import UpdateWorkoutPlan from "./pages/admin/workout-plans/updateWorkoutPlan";
 import ShowWorkoutPlan from "./pages/admin/workout-plans/showWorkoutPlan";
 import DietPlanList from "./pages/admin/diet-plans/dietPlanList";
 import ShowDietPlan from "./pages/admin/diet-plans/showDietPlan";
+import ViewMyWorkoutPlan from "./pages/member/workout-plan";
 
 
 function App() {
   return (
     <Routes>
       <Route element={<IndexPage />} path="/" />
+
       <Route element={<AuthenticationProtectedRoute><LoginPage /></AuthenticationProtectedRoute>} path="/login" />
       <Route element={<ForgotPasswordPage />} path="/forgot-password" />
+
       <Route element={<MemberProtectedRoute><MemberDashboardPage /></MemberProtectedRoute>} path="/member/dashboard" />
+      <Route element={<MemberProtectedRoute><ViewMyWorkoutPlan /></MemberProtectedRoute>} path="/member/workout-plan" />
+
       <Route element={<AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute>} path="/admin/dashboard" />
       <Route element={<AdminProtectedRoute><UsersList /></AdminProtectedRoute>} path="/admin/users" />
       <Route element={<AdminProtectedRoute><ViewUser /></AdminProtectedRoute>} path="/admin/users/view/:id" />

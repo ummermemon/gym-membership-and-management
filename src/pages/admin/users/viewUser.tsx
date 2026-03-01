@@ -18,8 +18,6 @@ import { Skeleton } from "@heroui/react";
 import { Tabs, Tab } from "@heroui/tabs";
 
 
-
-
 function InfoRow({ label, value }) {
     return (
         <div className="flex justify-between">
