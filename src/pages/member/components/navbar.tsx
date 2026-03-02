@@ -28,6 +28,7 @@ import { useDisclosure } from "@heroui/modal";
 import { Avatar } from "@heroui/avatar";
 import { addToast } from "@heroui/toast";
 import { Dumbbell } from "lucide-react";
+import { Eye, EyeClosed } from 'lucide-react';
 
 
 
@@ -45,6 +46,15 @@ export default function MemberNavbarComponent() {
     const [isEditProfileSubmitting, setIsEditProfileSubmitting] = useState(false);
     const [isChangePasswordSubmitting, setIsChangePasswordSubmitting] = useState(false);
 
+    const [isCurrentPasswordVisible, setIsCurrentPasswordVisible] = useState(false);
+    const toggleCurrentPasswordVisibility = () => setIsCurrentPasswordVisible(!isCurrentPasswordVisible);
+
+    const [isNewPasswordVisible, setIsNewPasswordVisible] = useState(false);
+    const toggleNewPasswordVisibility = () => setIsNewPasswordVisible(!isNewPasswordVisible);
+
+    const [isNewPasswordConfirmVisible, setIsNewPasswordConfirmVisible] = useState(false);
+    const toggleNewPasswordConfirmVisibility = () => setIsNewPasswordConfirmVisible(!isNewPasswordConfirmVisible);
+
     useEffect(() => {
         fetchUser();
     }, []);
@@ -55,6 +65,7 @@ export default function MemberNavbarComponent() {
         profile_img: null,
     });
     const [errors, setErrors] = useState({});
+    const [changePasswordErrors, setChangePasswordErrors] = useState({});
     const [previewImage, setPreviewImage] = useState(null);
     const fetchUser = async () => {
         try {
@@ -190,6 +201,7 @@ export default function MemberNavbarComponent() {
     const handleChangePasswordSubmit = async (e) => {
         e.preventDefault();
         setIsChangePasswordSubmitting(true);
+        setErrors({});
         const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
         try {
@@ -206,8 +218,7 @@ export default function MemberNavbarComponent() {
             );
 
             const data = await response.json();
-
-            if (response.status == true) {
+            if (data.status == true) {
                 addToast({
                     title: "Change Password",
                     description: "Password changed successfully",
@@ -223,21 +234,19 @@ export default function MemberNavbarComponent() {
                 });
 
                 onChangePasswordOpenChange(false);
-            }else{
-                if (response.message) {
+            } else {
+                if (data.status == false) {
                     addToast({
                         title: "Error",
-                        description: response.message,
+                        description: data.message,
                         color: "danger",
                     });
                     setIsChangePasswordSubmitting(false);
                     return;
-                }else{
-
-                    
+                } else {
                     addToast({
                         title: "Error",
-                        description: "Something weng wrong",
+                        description: "Please try again later",
                         color: "danger",
                     });
                     setIsChangePasswordSubmitting(false);
@@ -280,7 +289,7 @@ export default function MemberNavbarComponent() {
                             color={location.pathname === "/member/workout-plan" ? "warning" : "foreground"}
                             onClick={() => navigate("/member/workout-plan")}
                         >
-                           Workout Plan
+                            Workout Plan
                         </Link>
                     </NavbarItem>
                     <NavbarItem isActive={location.pathname === "/member/diet-plan"}>
@@ -289,7 +298,7 @@ export default function MemberNavbarComponent() {
                             color={location.pathname === "/member/diet-plan" ? "warning" : "foreground"}
                             onClick={() => navigate("/member/diet-plan")}
                         >
-                           Diet Plan
+                            Diet Plan
                         </Link>
                     </NavbarItem>
                 </NavbarContent>
@@ -309,8 +318,8 @@ export default function MemberNavbarComponent() {
                                     <Skeleton className="w-10 h-10 rounded-full" />
                                     <div className="flex flex-col">
 
-                                    <Skeleton className="w-24 h-4 rounded-md" />
-                                    <Skeleton className="w-10 h-2 rounded-md mt-2" />
+                                        <Skeleton className="w-24 h-4 rounded-md" />
+                                        <Skeleton className="w-10 h-2 rounded-md mt-2" />
                                     </div>
                                 </div>
                             ) : (
@@ -328,8 +337,8 @@ export default function MemberNavbarComponent() {
                                     }
                                     description={"Gym Member"}
                                     className="cursor-pointer"
-                                /> 
-                                )}
+                                />
+                            )}
                         </DropdownTrigger>
                         <DropdownMenu
                             aria-label="Custom item styles"
@@ -486,26 +495,75 @@ export default function MemberNavbarComponent() {
 
                                 <ModalBody>
                                     <Input
+                                        endContent={
+                                            <button
+                                                aria-label="toggle password visibility"
+                                                className="focus:outline-solid outline-transparent"
+                                                type="button"
+                                                onClick={toggleCurrentPasswordVisibility}
+                                            >
+                                                {isCurrentPasswordVisible ? (
+                                                    <EyeClosed strokeWidth={1} className="text-2xl text-default-400 cursor-pointer" />
+                                                ) : (
+                                                    <Eye strokeWidth={1} className="text-2xl text-default-400 cursor-pointer" />
+                                                )}
+                                            </button>
+                                        }
+                                        type={isCurrentPasswordVisible ? "text" : "password"}
                                         label="Current Password"
-                                        type="password"
                                         name="password"
                                         value={passwordData.password}
                                         onChange={handlePasswordChange}
+                                        isInvalid={!!changePasswordErrors.current_password}
+                                        errorMessage={changePasswordErrors.current_password?.[0]}
+                                        minLength={6}
                                         isRequired
                                     />
 
                                     <Input
+                                         endContent={
+                                            <button
+                                                aria-label="toggle password visibility"
+                                                className="focus:outline-solid outline-transparent"
+                                                type="button"
+                                                onClick={toggleNewPasswordVisibility}
+                                            >
+                                                {isNewPasswordVisible ? (
+                                                    <EyeClosed strokeWidth={1} className="text-2xl text-default-400 cursor-pointer" />
+                                                ) : (
+                                                    <Eye strokeWidth={1} className="text-2xl text-default-400 cursor-pointer" />
+                                                )}
+                                            </button>
+                                        }
+                                        type={isNewPasswordVisible ? "text" : "password"}
                                         label="New Password"
-                                        type="password"
                                         name="new_password"
                                         value={passwordData.new_password}
+                                        minLength={6}
                                         onChange={handlePasswordChange}
                                         isRequired
+                                        isInvalid={!!changePasswordErrors.new_password}
+                                        errorMessage={changePasswordErrors.new_password?.[0]}
                                     />
 
                                     <Input
+                                         endContent={
+                                            <button
+                                                aria-label="toggle password visibility"
+                                                className="focus:outline-solid outline-transparent"
+                                                type="button"
+                                                onClick={toggleNewPasswordConfirmVisibility}
+                                            >
+                                                {isNewPasswordConfirmVisible ? (
+                                                    <EyeClosed strokeWidth={1} className="text-2xl text-default-400 cursor-pointer" />
+                                                ) : (
+                                                    <Eye strokeWidth={1} className="text-2xl text-default-400 cursor-pointer" />
+                                                )}
+                                            </button>
+                                        }
+                                        type={isNewPasswordConfirmVisible ? "text" : "password"}
                                         label="Confirm Password"
-                                        type="password"
+                                        minLength={6}
                                         name="new_password_confirmation"
                                         value={passwordData.new_password_confirmation}
                                         onChange={handlePasswordChange}

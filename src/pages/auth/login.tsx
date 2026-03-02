@@ -122,8 +122,8 @@ export default function LoginPage() {
                         )}
                       </button>
                     }
-                    label="Password"
                     type={isVisible ? "text" : "password"}
+                    label="Password"
                     onChange={(e) => setPassword(e.target.value)}
                     isRequired
                   />
