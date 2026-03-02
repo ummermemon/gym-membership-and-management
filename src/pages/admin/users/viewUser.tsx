@@ -582,7 +582,7 @@ export default function ViewUser() {
                                             variant="flat"
                                             onClick={() => setIsOpen(true)}
                                         >
-                                            Assign / Renew
+                                            Assign
                                         </Button>
                                     </div>
                                 </div>
@@ -670,7 +670,7 @@ export default function ViewUser() {
                                     variant="flat"
                                     onClick={() => setIsWorkoutModalOpen(true)}
                                 >
-                                    Assign / Change
+                                    Assign
                                 </Button>
                             </CardHeader>
 
@@ -923,6 +923,67 @@ export default function ViewUser() {
                             color="warning"
                             onClick={handleAssignDiet}
                             isDisabled={!selectedDietPlan}
+                        >
+                            Assign
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+            <Modal
+                isOpen={isOpen}
+                onClose={() => {
+                    setIsOpen(false);
+                    setSelectedPlan(null);
+                }}
+            >
+                <ModalContent>
+                    <ModalHeader>Assign Membership</ModalHeader>
+
+                    <ModalBody>
+
+                        {plans.length === 0 ? (
+                            <p className="text-gray-500 text-center">
+                                No membership plans found.
+                            </p>
+                        ) : (
+                            <Select
+                                label="Select Membership Plan"
+                                placeholder="Choose plan"
+                                selectedKeys={
+                                    selectedPlan
+                                        ? new Set([String(selectedPlan)])
+                                        : new Set()
+                                }
+                                onSelectionChange={(keys) => {
+                                    const value = Array.from(keys)[0];
+                                    setSelectedPlan(value);
+                                }}
+                            >
+                                {plans.map((plan) => (
+                                    <SelectItem key={String(plan.id)}>
+                                        {plan.name}
+                                    </SelectItem>
+                                ))}
+                            </Select>
+                        )}
+
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <Button
+                            variant="light"
+                            onClick={() => {
+                                setIsOpen(false);
+                                setSelectedPlan(null);
+                            }}
+                        >
+                            Cancel
+                        </Button>
+
+                        <Button
+                            color="warning"
+                            onClick={handleAssign}
+                            isDisabled={!selectedPlan}
                         >
                             Assign
                         </Button>

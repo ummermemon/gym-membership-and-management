@@ -12,6 +12,8 @@ import { Tooltip } from "@heroui/tooltip";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@heroui/skeleton";
 import { Spinner } from "@heroui/spinner";
+import { useNavigate } from "react-router-dom";
+import { addToast } from "@heroui/toast";
 
 
 
@@ -19,6 +21,9 @@ import { Spinner } from "@heroui/spinner";
 const ViewMyWorkoutPlan = () => {
     const [workoutPlan, setWorkoutPlan] = useState();
     const [isLoading, setIsLoading] = useState(true);
+
+    const navigate = useNavigate();
+
     useEffect(() => {
         fetchWorkoutPlan();
     }, []);
@@ -41,10 +46,19 @@ const ViewMyWorkoutPlan = () => {
             );
             const res = await response.json();
             if (res.status === true) {
-                setWorkoutPlan(res.data[0]);
-                setIsLoading(false);
+                console.log(res.data.length);
+                if (res.data.length > 0) {
+                    setWorkoutPlan(res.data[0]);
+                    setIsLoading(false);
+                    
+                }else{
+                    navigate('/member/dashboard');
+                }
+            }else{
+                navigate('member/dashboard');
             }
         } catch (error) {
+                navigate('member/dashboard');
             // console.error("Error fetching user:", error);
         }
     };
@@ -102,12 +116,12 @@ const ViewMyWorkoutPlan = () => {
 
                             : workoutPlan?.days?.length > 0 ? (
                                 <>
-                                    <Accordion variant="shadow" >
+                                    <Accordion variant="splitted" >
                                         {workoutPlan.days.map((day, index) => (
                                             <AccordionItem
                                                 key={day.id || index}
                                                 aria-label={day.title}
-                                                className="p-2"
+                                                className="p-3"
                                                 title={
                                                     <div className="flex justify-between items-center w-full">
                                                         <span>{day.title}</span>
