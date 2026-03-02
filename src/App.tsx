@@ -17,6 +17,7 @@ import ShowWorkoutPlan from "./pages/admin/workout-plans/showWorkoutPlan";
 import DietPlanList from "./pages/admin/diet-plans/dietPlanList";
 import ShowDietPlan from "./pages/admin/diet-plans/showDietPlan";
 import ViewMyWorkoutPlan from "./pages/member/workout-plan";
+import ViewMyDietPlan from "./pages/member/diet-plan";
 
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
 
       <Route element={<MemberProtectedRoute><MemberDashboardPage /></MemberProtectedRoute>} path="/member/dashboard" />
       <Route element={<MemberProtectedRoute><ViewMyWorkoutPlan /></MemberProtectedRoute>} path="/member/workout-plan" />
+      <Route element={<MemberProtectedRoute><ViewMyDietPlan /></MemberProtectedRoute>} path="/member/diet-plan" />
 
       <Route element={<AdminProtectedRoute><AdminDashboardPage /></AdminProtectedRoute>} path="/admin/dashboard" />
       <Route element={<AdminProtectedRoute><UsersList /></AdminProtectedRoute>} path="/admin/users" />

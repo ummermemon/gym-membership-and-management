@@ -41,6 +41,9 @@ export default function MemberNavbarComponent() {
     const navigate = useNavigate();
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [user, setUser] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isEditProfileSubmitting, setIsEditProfileSubmitting] = useState(false);
+    const [isChangePasswordSubmitting, setIsChangePasswordSubmitting] = useState(false);
 
     useEffect(() => {
         fetchUser();
@@ -73,6 +76,7 @@ export default function MemberNavbarComponent() {
                 last_name: res.data.lname || "",
                 profile_img: null,
             });
+            setIsLoading(false);
         } catch (error) {
             console.error("Error fetching user:", error);
         }
@@ -115,6 +119,7 @@ export default function MemberNavbarComponent() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsEditProfileSubmitting(true);
         setErrors({});
         const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
@@ -148,13 +153,13 @@ export default function MemberNavbarComponent() {
                     title: "Edit Profile",
                     description: "Your profile updated successfully",
                     variant: "flat",
-                    color: "primary",
+                    color: "success",
                 });
                 setPreviewImage(null);
+                setIsEditProfileSubmitting(false);
                 await fetchUser();
                 onOpenChange(false);
             }
-            console.log(data);
 
         } catch (error) {
             addToast({
@@ -184,7 +189,7 @@ export default function MemberNavbarComponent() {
 
     const handleChangePasswordSubmit = async (e) => {
         e.preventDefault();
-
+        setIsChangePasswordSubmitting(true);
         const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
         try {
@@ -202,31 +207,47 @@ export default function MemberNavbarComponent() {
 
             const data = await response.json();
 
-            if (!response.ok) {
+            if (response.status == true) {
                 addToast({
-                    title: "Error",
-                    description: data.message || "Failed to change password",
-                    color: "danger",
+                    title: "Change Password",
+                    description: "Password changed successfully",
+                    color: "success",
+                    variant: "flat"
                 });
-                return;
+                setIsChangePasswordSubmitting(false);
+
+                setPasswordData({
+                    password: "",
+                    new_password: "",
+                    new_password_confirmation: "",
+                });
+
+                onChangePasswordOpenChange(false);
+            }else{
+                if (response.message) {
+                    addToast({
+                        title: "Error",
+                        description: response.message,
+                        color: "danger",
+                    });
+                    setIsChangePasswordSubmitting(false);
+                    return;
+                }else{
+
+                    
+                    addToast({
+                        title: "Error",
+                        description: "Something weng wrong",
+                        color: "danger",
+                    });
+                    setIsChangePasswordSubmitting(false);
+                    return;
+                }
             }
 
-            addToast({
-                title: "Success",
-                description: "Password changed successfully",
-                color: "primary",
-            });
-
-            setPasswordData({
-                password: "",
-                new_password: "",
-                new_password_confirmation: "",
-            });
-
-            onChangePasswordOpenChange(false);
 
         } catch (error) {
-            console.error(error);
+            setIsChangePasswordSubmitting(false);
         }
     };
 
@@ -262,16 +283,14 @@ export default function MemberNavbarComponent() {
                            Workout Plan
                         </Link>
                     </NavbarItem>
-                    <NavbarItem >
-                        <NavbarItem isActive={location.pathname === "/member/diet-plan"}>
-                            <Link
-                                as="button"
-                                color={location.pathname === "/member/diet-plan" ? "warning" : "foreground"}
-                                onClick={() => navigate("/member/diet-plan")}
-                            >
-                                Diet Plan
-                            </Link>
-                        </NavbarItem>
+                    <NavbarItem isActive={location.pathname === "/member/diet-plan"}>
+                        <Link
+                            as="button"
+                            color={location.pathname === "/member/diet-plan" ? "warning" : "foreground"}
+                            onClick={() => navigate("/member/diet-plan")}
+                        >
+                           Diet Plan
+                        </Link>
                     </NavbarItem>
                 </NavbarContent>
                 <NavbarContent justify="end" className="space-x-5 mr-2">
@@ -285,23 +304,32 @@ export default function MemberNavbarComponent() {
                         radius="sm"
                     >
                         <DropdownTrigger>
-                            <User
-                                avatarProps={{
-                                    src: `${user?.profile_img
-                                        ? `${API_BASE_URL}/storage/users/profile_images/${user.profile_img}`
-                                        : "/profile.png"
-                                        }`,
-                                    name: `${user?.fname} ${user?.lname}`,
-                                    showFallback: true
-                                }}
-                                name={
-                                    user
-                                        ? `${user.fname} ${user.lname}`
-                                        : <Skeleton className="h-3 w-3/5 rounded-lg" />
-                                }
-                                description={"Gym Member"}
-                                className="cursor-pointer"
-                            />
+                            {isLoading ? (
+                                <div className="flex items-center gap-3">
+                                    <Skeleton className="w-10 h-10 rounded-full" />
+                                    <div className="flex flex-col">
+
+                                    <Skeleton className="w-24 h-4 rounded-md" />
+                                    <Skeleton className="w-10 h-2 rounded-md mt-2" />
+                                    </div>
+                                </div>
+                            ) : (
+                                <User
+                                    avatarProps={{
+                                        src: `${user?.profile_img
+                                            ? `${API_BASE_URL}/storage/users/profile_images/${user.profile_img}`
+                                            : "/profile.png"
+                                            }`,
+                                    }}
+                                    name={
+                                        user
+                                            ? `${user.fname} ${user.lname}`
+                                            : <Skeleton className="h-3 w-3/5 rounded-lg" />
+                                    }
+                                    description={"Gym Member"}
+                                    className="cursor-pointer"
+                                /> 
+                                )}
                         </DropdownTrigger>
                         <DropdownMenu
                             aria-label="Custom item styles"
@@ -369,7 +397,7 @@ export default function MemberNavbarComponent() {
 
                                                 <Avatar
                                                     size="lg"
-                                                    className="w-28 h-28 text-large border-4 border-primary/30 shadow-lg transition-all duration-300 group-hover:scale-105"
+                                                    className="w-28 h-28 text-large border-4 border-warning shadow-lg transition-all duration-300 group-hover:scale-105"
                                                     src={
                                                         previewImage
                                                             ? previewImage
@@ -386,7 +414,6 @@ export default function MemberNavbarComponent() {
                                                     </span>
                                                 </div>
 
-                                                {/* Hidden File Input */}
                                                 <input
                                                     type="file"
                                                     accept="image/*"
@@ -396,7 +423,6 @@ export default function MemberNavbarComponent() {
                                                 />
                                             </div>
 
-                                            {/* Helper Text */}
                                             <p className="text-xs text-default-500">
                                                 Click on avatar to upload a new profile picture
                                             </p>
@@ -442,7 +468,7 @@ export default function MemberNavbarComponent() {
                                     <Button color="danger" variant="flat" onPress={onClose}>
                                         Close
                                     </Button>
-                                    <Button type="submit" color="primary" >
+                                    <Button type="submit" isLoading={isEditProfileSubmitting} color="warning" >
                                         Update
                                     </Button>
                                 </ModalFooter>
@@ -491,8 +517,8 @@ export default function MemberNavbarComponent() {
                                     <Button color="danger" variant="flat" onPress={onClose}>
                                         Close
                                     </Button>
-                                    <Button type="submit" color="primary">
-                                        Update Password
+                                    <Button type="submit" isLoading={isChangePasswordSubmitting} color="warning">
+                                        Update
                                     </Button>
                                 </ModalFooter>
                             </form>
@@ -500,7 +526,6 @@ export default function MemberNavbarComponent() {
                     )}
                 </ModalContent>
             </Modal>
-
         </>
     );
 }

@@ -5,7 +5,6 @@ import { Input } from "@heroui/input";
 import { Image } from "@heroui/image";
 import { Eye, EyeClosed } from 'lucide-react';
 import { Checkbox } from "@heroui/checkbox";
-import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { addToast } from "@heroui/toast";
 import { Helmet } from "react-helmet-async";
@@ -17,12 +16,14 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
@@ -37,12 +38,12 @@ export default function LoginPage() {
       });
 
       const data = await response.json();
-      if (response.ok) {
+      if (data.status === true) {
         addToast({
           title: "Login Successful!",
           description: "You've successfully logged in",
           variant: "flat",
-          color: "primary",
+          color: "success"
         });
         if (rememberMe) {
           localStorage.setItem("token", data.token);
@@ -51,14 +52,26 @@ export default function LoginPage() {
           sessionStorage.setItem("token", data.token);
           sessionStorage.setItem("role", data.user.role);
         }
+        setIsSubmitting(false);
         navigate('/member/dashboard');
       } else {
-        addToast({
-          title: "Login Failed",
-          description: "Something went wrong",
-          variant: "flat",
-          color: "danger",
-        });
+        if (data.status == false && data.message) {
+          addToast({
+            title: "Login Failed",
+            description: data.message,
+            variant: "flat",
+            color: "danger",
+          });
+          setIsSubmitting(false);
+        }else{
+          addToast({
+            title: "Login Failed",
+            description: "Please try again later",
+            variant: "flat",
+            color: "danger",
+          });
+          setIsSubmitting(false);
+        }
       }
 
     } catch (error) {
@@ -67,7 +80,8 @@ export default function LoginPage() {
         description: "Something went wrong",
         variant: "flat",
         color: "danger",
-      })
+      });
+      setIsSubmitting(false);
     }
   };
 
@@ -80,13 +94,10 @@ export default function LoginPage() {
         <div className="w-fit h-fit">
           <Card className="p-5">
             <CardHeader className="w-full flex justify-center">
-              {/* Light Mode Logo */}
               <Image
                 src="assets/images/logo/logo/black/erased.png"
                 className="h-30 block dark:hidden"
               />
-
-              {/* Dark Mode Logo */}
               <Image
                 src="assets/images/logo/logo/white/erased.png"
                 className="h-30 hidden dark:block"
@@ -105,9 +116,9 @@ export default function LoginPage() {
                         onClick={toggleVisibility}
                       >
                         {isVisible ? (
-                          <EyeClosed className="text-2xl text-default-400 cursor-pointer" />
+                          <EyeClosed strokeWidth={1} className="text-2xl text-default-400 cursor-pointer" />
                         ) : (
-                          <Eye className="text-2xl text-default-400 cursor-pointer" />
+                          <Eye strokeWidth={1} className="text-2xl text-default-400 cursor-pointer" />
                         )}
                       </button>
                     }
@@ -118,10 +129,12 @@ export default function LoginPage() {
                   />
                   <div className="mt-2 flex justify-between">
                     <Checkbox size="sm" checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}><div className="text-sm text-gray-600">Remember Me</div></Checkbox>
-                    <Link to={"/forgot-password"} className="text-gray-600 text-sm">Forgot Password?</Link>
+                      onChange={(e) => setRememberMe(e.target.checked)}  ><div className="text-sm text-gray-600">Remember Me</div></Checkbox>
+                    <div className="">
+
+                    </div>
                   </div>
-                  <Button type="submit" color="warning" variant="shadow" size="md">
+                  <Button type="submit" isLoading={isSubmitting} color="warning" variant="shadow" size="md">
                     Login
                   </Button>
                 </div>
