@@ -326,9 +326,11 @@ export default function MemberNavbarComponent() {
                                 <User
                                     avatarProps={{
                                         src: `${user?.profile_img
-                                            ? `${API_BASE_URL}/storage/users/profile_images/${user.profile_img}`
-                                            : "/profile.png"
-                                            }`,
+                                                ? `${API_BASE_URL}/storage/users/profile_images/${user.profile_img}`
+                                                : "/profile.png"
+                                                }`,
+                                            name: `${user?.fname} ${user?.lname}`,
+                                            showFallback: true,
                                     }}
                                     name={
                                         user
