@@ -47,7 +47,7 @@ export default function IndexPage() {
           </video>
 
           {/* Fade Effect (Gradient Overlay) */}
-          <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/70 to-black"></div>
+          <div className="absolute inset-0 bg-linear-to-l from-transparent via-black/70 to-black"></div>
         </div>
 
       </div>
