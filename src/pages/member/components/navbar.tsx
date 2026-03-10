@@ -416,6 +416,8 @@ export default function MemberNavbarComponent() {
                                                                 ? `${API_BASE_URL}/storage/users/profile_images/${user.profile_img}`
                                                                 : "/profile.png"
                                                     }
+                                                    name={`${user.fname} ${user.lname}`}
+                                                    showFallback
                                                 />
 
                                                 {/* Overlay */}

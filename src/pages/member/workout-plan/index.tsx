@@ -14,6 +14,7 @@ import { Skeleton } from "@heroui/skeleton";
 import { Spinner } from "@heroui/spinner";
 import { useNavigate } from "react-router-dom";
 import { addToast } from "@heroui/toast";
+import { useRef } from "react";
 
 
 
@@ -23,10 +24,14 @@ const ViewMyWorkoutPlan = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     const navigate = useNavigate();
+    const hasFetched = useRef(false);
 
     useEffect(() => {
+    if (!hasFetched.current) {
         fetchWorkoutPlan();
-    }, []);
+        hasFetched.current = true;
+    }
+}, []);
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 
@@ -46,19 +51,18 @@ const ViewMyWorkoutPlan = () => {
             );
             const res = await response.json();
             if (res.status === true) {
-                console.log(res.data.length);
-                if (res.data.length > 0) {
-                    setWorkoutPlan(res.data[0]);
-                    setIsLoading(false);
-                    
-                }else{
-                    navigate('/member/dashboard');
-                }
+                setWorkoutPlan(res.data[0]);
+                setIsLoading(false);
             }else{
-                navigate('member/dashboard');
+                addToast({
+                    title: res.message || "Something went wrong",
+                    variant: "flat",
+                    color: "danger",
+                });
+                navigate('/member/dashboard');
             }
         } catch (error) {
-                navigate('member/dashboard');
+                navigate('/member/dashboard');
             // console.error("Error fetching user:", error);
         }
     };

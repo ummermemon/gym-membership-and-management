@@ -18,7 +18,7 @@ import { Input } from "@heroui/input";
 import { User } from "@heroui/user";
 import { Pagination } from "@heroui/pagination";
 import { useState, useMemo, useCallback } from "react";
-import { ChevronDown, Delete, Edit, Eye, EyeClosed, PencilLine, Plus, Search, Trash2, } from "lucide-react";
+import { ChevronDown, Delete, Edit, Eye, EyeClosed, PencilLine, Plus, Search, Trash2, X } from "lucide-react";
 import { Select, SelectSection, SelectItem } from "@heroui/select";
 import { useEffect } from "react";
 import { Tooltip } from "@heroui/tooltip";
@@ -160,8 +160,20 @@ export default function UsersListComponent() {
     const [users, setUsers] = useState([]);
     const [selectedKeys, setSelectedKeys] = useState(new Set([]));
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const {
+        isOpen: isDeleteOpen,
+        onOpen: onDeleteOpen,
+        onOpenChange: onDeleteOpenChange,
+    } = useDisclosure();
+    const {
+        isOpen: isUpdateOpen,
+        onOpen: onUpdateOpen,
+        onOpenChange: onUpdateOpenChange,
+    } = useDisclosure();
     const [isVisible, setIsVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [deleteUserId, setDeleteUserId] = useState(null);
+    const [updateUserId, setUpdateUserId] = useState(null);
 
     const toggleVisibility = () => setIsVisible(!isVisible);
 
@@ -192,11 +204,6 @@ export default function UsersListComponent() {
             setPage(1);
         }
     }, [users, pages]);
-
-    const onRowsPerPageChange = useCallback((e) => {
-        setRowsPerPage(Number(e.target.value));
-        setPage(1);
-    }, []);
     // Pagination
 
 
@@ -276,9 +283,7 @@ export default function UsersListComponent() {
                     variant: "flat",
                     color: "warning",
                 });
-            }
-
-            if (!response.ok) {
+            } else {
                 addToast({
                     title: "Error",
                     description: "Something went wrong",
@@ -313,7 +318,8 @@ export default function UsersListComponent() {
         }
     };
     const handleDeleteUser = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this user?")) return;
+
+        // if (!window.confirm("Are you sure you want to delete this user?")) return;
 
         try {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -353,12 +359,17 @@ export default function UsersListComponent() {
             });
         }
     };
+    const handleUpdateUser = async (onClose) => {
+        alert('Update user called');
+        return;
+    };
+
 
     const topContent = useMemo(() => {
         return (
             <div className="flex justify-between items-center">
                 <div className="flex w-sm flex-wrap md:flex-nowrap gap-4">
-                    
+
                 </div>
                 <div className="flex gap-4">
                     <Button color="warning" startContent={<Plus size={20} strokeWidth={1} />} onPress={onOpen}>Add User</Button>
@@ -463,15 +474,32 @@ export default function UsersListComponent() {
                                                 <EyeIcon />
                                             </span>
                                         </Tooltip>
-                                        <Tooltip content="Edit user">
-                                            <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                                        <Tooltip content="Edit">
+                                            <span
+                                                className="text-lg text-default-400 cursor-pointer active:opacity-50"
+                                                onClick={() => {
+                                                    setUpdateUserId(item.id);
+                                                    setFormData({
+                                                        first_name: item.fname,
+                                                        last_name: item.lname,
+                                                        email: item.email,
+                                                        password: "", // optional (usually don’t prefill password)
+                                                        role: item.role,
+                                                    });
+                                                    onUpdateOpen();
+                                                }}
+                                            >
                                                 <EditIcon />
                                             </span>
                                         </Tooltip>
-                                        <Tooltip color="danger" content="Delete user">
+                                        <Tooltip color="danger" content="Delete">
                                             <span
                                                 className="text-lg text-danger cursor-pointer active:opacity-50"
-                                                onClick={() => handleDeleteUser(item.id)}
+                                                // onClick={() => handleDeleteUser(item.id)}
+                                                onClick={() => {
+                                                    setDeleteUserId(item.id);
+                                                    onDeleteOpen();
+                                                }}
                                             >
                                                 <DeleteIcon />
                                             </span>
@@ -579,6 +607,98 @@ export default function UsersListComponent() {
                                     onPress={() => handleAddUser(onClose)}
                                 >
                                     Add User
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+            <Modal isOpen={isDeleteOpen} placement="top-center" onOpenChange={onDeleteOpenChange}>
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className="flex flex-col gap-1">Delete User</ModalHeader>
+                            <ModalBody>
+                                <div className="">
+                                    Are you sure want to delete this user?
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button color="default" variant="flat" onPress={onClose}>
+                                    <X size={15} strokeWidth={1} />  Cancel
+                                </Button>
+                                <Button
+                                    color="danger"
+                                    onPress={() => {
+                                        handleDeleteUser(deleteUserId);
+                                        onClose();
+                                    }}
+                                >
+                                    <Trash2 size={15} strokeWidth={1} /> Confirm
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+            <Modal
+                isOpen={isUpdateOpen}
+                placement="top-center"
+                onOpenChange={onUpdateOpenChange}
+            >
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader>Update User</ModalHeader>
+                            <ModalBody>
+                                <div className="grid grid-cols-12 gap-4">
+                                    <div className="col-span-12 md:col-span-6">
+                                        <Input
+                                            label="First Name"
+                                            variant="flat"
+                                            value={formData.first_name}
+                                            onValueChange={(value) =>
+                                                handleChange("first_name", value)
+                                            }
+                                            isRequired
+                                        />
+                                    </div>
+
+                                    <div className="col-span-12 md:col-span-6">
+                                        <Input
+                                            label="Last Name"
+                                            variant="flat"
+                                            value={formData.last_name}
+                                            onValueChange={(value) =>
+                                                handleChange("last_name", value)
+                                            }
+                                            isRequired
+                                        />
+                                    </div>
+
+                                    <div className="col-span-12">
+                                        <Input
+                                            label="Email"
+                                            type="email"
+                                            variant="flat"
+                                            value={formData.email}
+                                            onValueChange={(value) =>
+                                                handleChange("email", value)
+                                            }
+                                            isRequired
+                                        />
+                                    </div>
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button variant="flat" onPress={onClose}>
+                                    Cancel
+                                </Button>
+                                <Button
+                                    color="warning"
+                                    onPress={() => handleUpdateUser(onClose)}
+                                >
+                                    Update
                                 </Button>
                             </ModalFooter>
                         </>

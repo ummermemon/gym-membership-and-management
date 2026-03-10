@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@heroui/button";
 import { Card, CardHeader, CardBody } from "@heroui/card";
 import { Input } from "@heroui/input";
@@ -20,6 +20,10 @@ export default function LoginPage() {
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.documentElement.classList.add("dark");
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

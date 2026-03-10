@@ -4,8 +4,7 @@ import { Card, CardHeader, CardBody } from "@heroui/card";
 import { Button } from "@heroui/button";
 import { Alert } from "@heroui/alert";
 import { Skeleton } from "@heroui/skeleton";
-import { Hand, Dumbbell, Utensils, Calendar, ChevronRight } from 'lucide-react';
-// import { Link } from "@heroui/link";
+import { Hand, Dumbbell, Utensils } from 'lucide-react';
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
@@ -71,7 +70,7 @@ export default function MemberDashboardPage() {
     }, [fetchDashboard]);
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen bg-50/50">
             <Helmet>
                 <title>Dashboard</title>
             </Helmet>
@@ -79,7 +78,6 @@ export default function MemberDashboardPage() {
             <MemberNavbarComponent />
 
             <main className="max-w-6xl mx-auto p-4 md:p-6 space-y-8">
-                {/* Welcome Alert */}
                 {!loading && data?.user && (
                     <Alert
                         startContent={<Hand className="text-warning" size={24} strokeWidth={1} />}
@@ -178,7 +176,9 @@ export default function MemberDashboardPage() {
                                             <h4>{data.diet_plan.diet_plan.title}</h4>
                                             <p className="text-default-500 capitalize">Goal: {data.diet_plan.diet_plan.goal?.replace('_', ' ')}</p>
                                         </div>
-                                        <Button color="warning" className="mt-2">
+                                        
+                                        <Button color="warning" className="mt-2" as={Link}
+                                            to={'/member/diet-plan'}>
                                             Explore
                                         </Button>
                                     </div>
@@ -190,7 +190,6 @@ export default function MemberDashboardPage() {
                             </CardBody>
                         </Card>
                     </Skeleton>
-
                 </div>
             </main>
         </div>
