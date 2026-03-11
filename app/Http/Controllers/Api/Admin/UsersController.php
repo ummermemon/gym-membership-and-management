@@ -39,6 +39,7 @@ class UsersController extends Controller
             'user' => $user
         ], 201);
     }
+
     public function list(Request $request)
     {
         $users = User::with('activeMembership')->where('role', 'member')->get();
@@ -48,6 +49,7 @@ class UsersController extends Controller
             'data' => $users
         ]);
     }   
+
     public function destroy(Request $request, $id)
     {
         $user = User::destroy($id);
@@ -56,9 +58,9 @@ class UsersController extends Controller
             'message' => 'User Deleted Successfully'
         ]);
     }
+
     public function view(Request $request, $id)
     {
-        // $user = User::with(['activeMembership', 'memberships'])->where('id', $id)->get();
         $user = User::with([
             'activeMembership',
             'memberships',
@@ -71,5 +73,41 @@ class UsersController extends Controller
             'message' => 'User Fetch Successfully',
             'user' => $user
         ]);
-    }      
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation errors',
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $first_name = $request->first_name;
+        $last_name = $request->last_name;
+        $email = $request->email;
+
+        $user = User::findOrFail($id);
+
+        $user->update([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'email' => $request->email
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'User Updated Succussfully',
+            'data' => $user
+        ]);
+    }   
+
+    
 }

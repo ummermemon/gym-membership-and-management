@@ -1,0 +1,13 @@
+<?php
+
+namespace App\Http\Controllers\Api\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+class AdminController extends Controller
+{
+    public function dashbaord(Request $request){
+        return 'dashboard called!';
+    }
+}

@@ -10,12 +10,19 @@ class MemberWorkoutController extends Controller
 {
     public function viewWorkoutPlan(){
         try {
-            // $plan = User::with('activeWorkoutPlan.days.exercises')->where('id', $id)->get();
-            $user = auth()->user()->load('activeWorkoutPlan.days.exercises');
-            return response()->json([
-                'status' => true,
-                'data' => $user->activeWorkoutPlan
-            ]);
+            $user = auth()->user()->load(['activeWorkoutPlan.days.exercises', 'activeMembership']);
+            if (isset($user->activeMembership) && $user->activeMembership->status == "active") {
+                return response()->json([
+                    'status' => true,
+                    'data' => $user->activeWorkoutPlan
+                ]);
+            }else {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Access Denied"
+                ]);
+            }
+            
 
         } catch (\Throwable $th) {
             return response()->json([
