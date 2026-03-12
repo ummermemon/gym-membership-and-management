@@ -8,6 +8,7 @@ import { Checkbox } from "@heroui/checkbox";
 import { useNavigate } from "react-router-dom";
 import { addToast } from "@heroui/toast";
 import { Helmet } from "react-helmet-async";
+import { Link } from "@heroui/link";
 
 export default function LoginPage() {
   const [isVisible, setIsVisible] = useState(false);
@@ -67,7 +68,7 @@ export default function LoginPage() {
             color: "danger",
           });
           setIsSubmitting(false);
-        }else{
+        } else {
           addToast({
             title: "Login Failed",
             description: "Please try again later",
@@ -134,9 +135,9 @@ export default function LoginPage() {
                   <div className="mt-2 flex justify-between">
                     <Checkbox size="sm" checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}  ><div className="text-sm text-gray-600">Remember Me</div></Checkbox>
-                    <div className="">
-
-                    </div>
+                    <Link color="primary" href={`/forgot-password`} size="sm">
+                      Forgot password?
+                    </Link>
                   </div>
                   <Button type="submit" isLoading={isSubmitting} color="warning" variant="shadow" size="md">
                     Login

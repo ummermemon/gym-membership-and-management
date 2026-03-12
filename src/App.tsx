@@ -19,6 +19,7 @@ import ShowDietPlan from "./pages/admin/diet-plans/showDietPlan";
 import ViewMyWorkoutPlan from "./pages/member/workout-plan";
 import ViewMyDietPlan from "./pages/member/diet-plan";
 import ViewMyMembership from "./pages/member/membership";
+import ResetPasswordPage from "./pages/auth/reset-password";
 
 
 function App() {
@@ -28,7 +29,7 @@ function App() {
 
       <Route element={<AuthenticationProtectedRoute><LoginPage /></AuthenticationProtectedRoute>} path="/login" />
       <Route element={<ForgotPasswordPage />} path="/forgot-password" />
-
+      <Route  element={<ResetPasswordPage />} path="/reset-password/:token" />
       <Route element={<MemberProtectedRoute><MemberDashboardPage /></MemberProtectedRoute>} path="/member/dashboard" />
       <Route element={<MemberProtectedRoute><ViewMyWorkoutPlan /></MemberProtectedRoute>} path="/member/workout-plan" />
       <Route element={<MemberProtectedRoute><ViewMyDietPlan /></MemberProtectedRoute>} path="/member/diet-plan" />
