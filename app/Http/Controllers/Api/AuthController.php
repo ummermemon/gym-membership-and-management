@@ -71,8 +71,8 @@ class AuthController extends Controller
             ]
         );
 
-        // $resetLink = env('FRONTEND_URL')."/reset-password/$token?email=".$request->email;
-        $resetLink = env('FRONTEND_URL')."/reset-password/$token";
+        $resetLink = env('FRONTEND_URL')."/reset-password/$token?email=".$request->email;
+        // $resetLink = env('FRONTEND_URL')."/reset-password/$token";
 
         Mail::raw("Reset your password: $resetLink", function ($message) use ($request) {
             $message->to($request->email)
