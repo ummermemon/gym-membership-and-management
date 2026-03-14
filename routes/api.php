@@ -88,7 +88,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/view/{id}', [UsersController::class, 'view']);
         });
 
-        Route::get('dashboard', [AdminController::class, 'dashboard']);
+        Route::get('/dashboard', [AdminController::class, 'dashboard']);
     });
 
 });
