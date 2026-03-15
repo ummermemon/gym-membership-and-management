@@ -11,12 +11,16 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Skeleton } from "@heroui/react";
 
 export default function AdminDashboardPage() {
     const [data, setData] = useState({});
+    const [loading, setLoading] = useState(true);
+
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     useEffect(() => {
+        setLoading(true);
         fetchData();
     }, []);
 
@@ -42,13 +46,14 @@ export default function AdminDashboardPage() {
 
             const res = await response.json();
             setData(res.data);
+            setLoading(false);
         } catch (error) {
             console.error("Dashboard fetch error:", error);
         }
     };
 
     return (
-        <div className="min-h-screen bg-black text-white">
+        <div className="min-h-screen">
             <Helmet>
                 <title>Admin Dashboard</title>
             </Helmet>
@@ -56,7 +61,6 @@ export default function AdminDashboardPage() {
             <AdminNavbarComponent currentPage="dashboard" />
 
             <main className="max-w-7xl mx-auto p-6 lg:p-10">
-                {/* Header */}
                 <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                     <div>
                         <h1 className="text-3xl font-normal">Dashboard</h1>
@@ -64,153 +68,188 @@ export default function AdminDashboardPage() {
                             Monitor and manage gym assets and users.
                         </p>
                     </div>
-
-                    <Button
-                        color="warning"
-                        endContent={<Plus size={18} />}
-                        radius="md"
-                    >
-                        Quick Action
-                    </Button>
                 </header>
 
-                {/* Count Cards */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                    <CountCard
-                        label="Members"
-                        count={data?.count?.users || 0}
-                        icon={<Users size={20} />}
-                    />
+                    <Skeleton isLoaded={!loading} className="rounded-2xl">
+                        <Card >
+                            <CardBody className="flex flex-row items-center gap-4 py-4">
+                                <div className="text-warning bg-warning/10 p-2 rounded-lg">{<Users size={20} />}</div>
 
-                    <CountCard
-                        label="Workouts"
-                        count={data?.count?.workout_plans || 0}
-                        icon={<Dumbbell size={20} />}
-                    />
+                                <div>
+                                    <p className="text-2xl font-normal leading-none">{data?.count?.users || 0}</p>
+                                    <p className="text-xs text-gray-500 font-normal mt-1">Members</p>
+                                </div>
+                            </CardBody>
+                        </Card>
+                    </Skeleton>
 
-                    <CountCard
-                        label="Diet Plans"
-                        count={data?.count?.diet_plans || 0}
-                        icon={<Apple size={20} />}
-                    />
+                    <Skeleton isLoaded={!loading} className="rounded-2xl">
+                        <Card >
+                            <CardBody className="flex flex-row items-center gap-4 py-4">
+                                <div className="text-warning bg-warning/10 p-2 rounded-lg">{<Dumbbell size={20} />}</div>
 
-                    <CountCard
-                        label="Plans"
-                        count={data?.count?.membership_plans || 0}
-                        icon={<CreditCard size={20} />}
-                    />
+                                <div>
+                                    <p className="text-2xl font-normal leading-none">{data?.count?.workout_plans || 0}</p>
+                                    <p className="text-xs text-gray-500 font-normal mt-1">Workout Plans</p>
+                                </div>
+                            </CardBody>
+                        </Card>
+                    </Skeleton>
+                    <Skeleton isLoaded={!loading} className="rounded-2xl">
+                        <Card >
+                            <CardBody className="flex flex-row items-center gap-4 py-4">
+                                <div className="text-warning bg-warning/10 p-2 rounded-lg">{<Apple size={20} />}</div>
+
+                                <div>
+                                    <p className="text-2xl font-normal leading-none">{data?.count?.diet_plans || 0}</p>
+                                    <p className="text-xs text-gray-500 font-normal mt-1">Diet Plans</p>
+                                </div>
+                            </CardBody>
+                        </Card>
+                    </Skeleton>
+                    <Skeleton isLoaded={!loading} className="rounded-2xl">
+                        <Card >
+                            <CardBody className="flex flex-row items-center gap-4 py-4">
+                                <div className="text-warning bg-warning/10 p-2 rounded-lg">{<CreditCard size={20} />}</div>
+
+                                <div>
+                                    <p className="text-2xl font-normal leading-none">{data?.count?.membership_plans || 0}</p>
+                                    <p className="text-xs text-gray-500 font-normal mt-1">Membership Plans</p>
+                                </div>
+                            </CardBody>
+                        </Card>
+                    </Skeleton>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* LEFT COLUMN */}
                     <div className="space-y-8">
+                        <Skeleton isLoaded={!loading} className="rounded-2xl">
+                            <Card>
+                                <CardBody className="p-5">
+                                    <div className="flex justify-between items-center mb-5">
+                                        <h3 className="text-lg font-normal">Recent Members</h3>
+                                        <Button
+                                            as={Link}
+                                            to={'/admin/users'}
+                                            variant="light"
+                                            color="warning"
+                                            size="sm"
+                                            endContent={<ChevronRight size={14} />}
+                                        >
+                                            See All
+                                        </Button>
+                                    </div>
 
-                        {/* Recent Members */}
-                        <ManagementSection title="Recent Members" link="/members">
-                            {data?.users?.map((user, index) => (
-                                <div key={user.id}>
-                                    <MemberItem
-                                        name={`${user.fname} ${user.lname}`}
-                                        info={user.email}
-                                        status="Active"
-                                        profileImg={user.profile_img}
-                                    />
-                                    {index !== data.users.length - 1 && (
-                                        <Divider className="bg-zinc-800" />
-                                    )}
-                                </div>
-                            ))}
-                        </ManagementSection>
-
-                        {/* Membership Plans */}
-                        <ManagementSection title="Membership Plans" link="/membership-plans">
-                            {data?.membership_plans?.map((plan) => (
-                                <PlanItem
-                                    key={plan.id}
-                                    name={plan.name}
-                                    price={`₹${plan.price}`}
-                                    users="--"
-                                />
-                            ))}
-                        </ManagementSection>
-
+                                    <div className="space-y-4">{data?.users?.map((user, index) => (
+                                        <div key={user.id}>
+                                            <MemberItem
+                                                name={`${user.fname} ${user.lname}`}
+                                                info={user.email}
+                                                status="Active"
+                                                profileImg={user.profile_img}
+                                            />
+                                        </div>
+                                    ))}</div>
+                                </CardBody>
+                            </Card>
+                        </Skeleton>
+                        <Skeleton isLoaded={!loading} className="rounded-2xl">
+                            <Card >
+                                <CardBody className="p-5">
+                                    <div className="flex justify-between items-center mb-5">
+                                        <h3 className="text-lg font-normal">Membership Plans</h3>
+                                        <Button
+                                            as={Link}
+                                            to={"/admin/membership-plans"}
+                                            variant="light"
+                                            color="warning"
+                                            size="sm"
+                                            endContent={<ChevronRight size={14} />}
+                                        >
+                                            See All
+                                        </Button>
+                                    </div>
+                                    <div className="space-y-4">
+                                        {data?.membership_plans?.map((plan) => (
+                                            <div className="flex justify-between items-center p-3 rounded-lg bg-linear-to-r from-warning-500 to to-blue-900">
+                                                <div>
+                                                    <p className="text-sm font-normal text-black">{plan.name}</p>
+                                                    <p className="text-xs text-black">{`₹${plan.price}`}</p>
+                                                </div>
+                                                {/* <p className="text-xs text-gray-500">Members</p> */}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </CardBody>
+                            </Card>
+                        </Skeleton>
                     </div>
 
-                    {/* RIGHT COLUMN */}
                     <div className="space-y-8">
+                        <Skeleton isLoaded={!loading} className="rounded-2xl">
+                            <Card className="" >
+                                <CardBody className="p-5">
+                                    <div className="flex justify-between items-center mb-5">
+                                        <h3 className="text-lg font-normal">Workout Plans</h3>
+                                        <Button
+                                            as={Link}
+                                            to={'/admin/workout-plans'}
+                                            variant="light"
+                                            color="warning"
+                                            size="sm"
+                                            endContent={<ChevronRight size={14} />}
+                                        >
+                                            See All
+                                        </Button>
+                                    </div>
 
-                        {/* Workout Plans */}
-                        <ManagementSection title="Workout Plans" link="/workouts">
-                            {data?.workout_plans?.map((plan) => (
-                                <AssetItem
-                                    key={plan.id}
-                                    title={plan.title}
-                                    category={plan.level}
-                                    items="Exercises"
-                                />
-                            ))}
-                        </ManagementSection>
+                                    <div className="space-y-4">{data?.workout_plans?.map((plan) => (
+                                        <div className="flex justify-between items-center group cursor-pointer hover:translate-x-1 transition-transform">
+                                                <div>
+                                                    <p className="text-sm font-normal">{plan.title}</p>
+                                                    <p className="text-xs text-gray-500 capitalize">{plan.level}</p>
+                                                </div>
+                                            </div>
+                                    ))}</div>
+                                </CardBody>
+                            </Card>
+                        </Skeleton>
+                        <Skeleton isLoaded={!loading} className="rounded-2xl">
+                            <Card >
+                                <CardBody className="p-5">
+                                    <div className="flex justify-between items-center mb-5">
+                                        <h3 className="text-lg font-normal">Diet Plans</h3>
 
-                        {/* Diet Plans */}
-                        <ManagementSection title="Diet Plans" link="/diet-plans">
-                            {data?.diet_plans?.map((plan) => (
-                                <AssetItem
-                                    key={plan.id}
-                                    title={plan.title}
-                                    category={plan.goal}
-                                    items={plan.level}
-                                />
-                            ))}
-                        </ManagementSection>
+                                        <Button
+                                            as={Link}
+                                            to={"/admin/diet-plans"}
+                                            variant="light"
+                                            color="warning"
+                                            size="sm"
+                                            endContent={<ChevronRight size={14} />}
+                                        >
+                                            See All
+                                        </Button>
+                                    </div>
 
+                                    <div className="space-y-4">
+                                        {data?.diet_plans?.map((plan) => (
+                                            <div className="flex justify-between items-center group cursor-pointer hover:translate-x-1 transition-transform">
+                                                <div>
+                                                    <p className="text-sm font-normal">{plan.title}</p>
+                                                    <p className="text-xs text-gray-500 capitalize">{plan.level}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </CardBody>
+                            </Card>
+                        </Skeleton>
                     </div>
                 </div>
             </main>
         </div>
-    );
-}
-
-/* ---------------- Count Card ---------------- */
-
-function CountCard({ label, count, icon }) {
-    return (
-        <Card className="bg-zinc-900/40 border-zinc-800 border-1" shadow="none">
-            <CardBody className="flex flex-row items-center gap-4 py-4">
-                <div className="text-warning bg-warning/10 p-2 rounded-lg">{icon}</div>
-
-                <div>
-                    <p className="text-2xl font-normal leading-none">{count}</p>
-                    <p className="text-xs text-gray-500 font-normal mt-1">{label}</p>
-                </div>
-            </CardBody>
-        </Card>
-    );
-}
-
-/* ---------------- Management Section ---------------- */
-
-function ManagementSection({ title, children, link }) {
-    return (
-        <Card className="bg-zinc-900/30 border-zinc-800 border-1" shadow="none">
-            <CardBody className="p-5">
-                <div className="flex justify-between items-center mb-5">
-                    <h3 className="text-lg font-normal text-white">{title}</h3>
-
-                    <Button
-                        as={Link}
-                        to={link}
-                        variant="light"
-                        color="warning"
-                        size="sm"
-                        endContent={<ChevronRight size={14} />}
-                    >
-                        See All
-                    </Button>
-                </div>
-
-                <div className="space-y-4">{children}</div>
-            </CardBody>
-        </Card>
     );
 }
 
@@ -245,38 +284,6 @@ function MemberItem({ name, info, status, profileImg }) {
             >
                 {status}
             </Chip>
-        </div>
-    );
-}
-
-/* ---------------- Plan Item ---------------- */
-
-function PlanItem({ name, price, users }) {
-    return (
-        <div className="flex justify-between items-center p-3 rounded-lg bg-black/40 border border-zinc-800">
-            <div>
-                <p className="text-sm font-normal">{name}</p>
-                <p className="text-xs text-warning">{price}</p>
-            </div>
-
-            <p className="text-xs text-gray-500">{users} Members</p>
-        </div>
-    );
-}
-
-/* ---------------- Asset Item ---------------- */
-
-function AssetItem({ title, category, items }) {
-    return (
-        <div className="flex justify-between items-center group cursor-pointer hover:translate-x-1 transition-transform">
-            <div>
-                <p className="text-sm font-normal text-gray-200">{title}</p>
-                <p className="text-xs text-gray-500">{category}</p>
-            </div>
-
-            <span className="text-xs font-normal text-zinc-600 italic">
-                {items}
-            </span>
         </div>
     );
 }
