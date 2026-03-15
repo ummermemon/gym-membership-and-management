@@ -135,7 +135,7 @@ export default function LoginPage() {
                   <div className="mt-2 flex justify-between">
                     <Checkbox size="sm" checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}  ><div className="text-sm text-gray-600">Remember Me</div></Checkbox>
-                    <Link color="primary" href={`/forgot-password`} size="sm">
+                    <Link  href={`/forgot-password`} size="sm">
                       Forgot password?
                     </Link>
                   </div>
