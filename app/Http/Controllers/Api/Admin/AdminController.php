@@ -15,27 +15,28 @@ class AdminController extends Controller
 {
     public function dashboard(Request $request){
 
-        $users = User::where('role', 'member')->get();
+        // $users = User::where('role', 'member')->get();
+        $users = User::where('role', 'member')->latest()->take(3)->get();
         $membership_plans = MembershipPlan::get();
         $workout_plans = WorkoutPlan::get();
         $diet_plans = DietPlan::get();
 
         $data = array('count' => array(
-            'users' => $users->count(), 
-            'membership_plans' => $membership_plans->count(), 
-            'workout_plans' => $workout_plans->count(), 
-            'diet_plans' => $diet_plans->count()
+                'users' => $users->count(), 
+                'membership_plans' => $membership_plans->count(), 
+                'workout_plans' => $workout_plans->count(), 
+                'diet_plans' => $diet_plans->count()
             ),
             'users' => $users,
             'workout_plans' => $workout_plans,
             'diet_plans' => $diet_plans,
             'membership_plans' => $membership_plans
         );
-         return response()->json([
+        
+        return response()->json([
             'status' => true,
             'message' => 'Dashbaord',
             'data' => $data
         ]);
-        return 'this called';
     }
 }
